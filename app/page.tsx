@@ -31,7 +31,6 @@ export default function HomePage() {
         className="absolute inset-0 z-0"
       />
 
-      {/* Hero Section */}
       <section className="relative z-10 flex flex-col items-center justify-center px-4 text-center py-32">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -61,7 +60,6 @@ export default function HomePage() {
         </motion.div>
       </section>
 
-      {/* Mission Statement */}
       <section className="relative z-10 px-6 py-16 bg-gradient-to-b from-gray-950 to-gray-900 text-center">
         <h2 className="text-4xl font-bold text-cyan-400 mb-4">Our Mission</h2>
         <p className="text-lg text-gray-300 max-w-3xl mx-auto">
@@ -71,7 +69,6 @@ export default function HomePage() {
         </p>
       </section>
 
-      {/* Scientific Backing Section */}
       <section className="relative z-10 px-6 py-16 bg-gray-900 text-center">
         <h2 className="text-4xl font-bold text-purple-400 mb-8">Scientific Backing</h2>
         <div className="text-left max-w-4xl mx-auto space-y-6">
@@ -94,7 +91,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Cognitive Signal Section */}
       <section className="relative z-10 px-6 py-20 bg-gradient-to-b from-gray-900 to-black">
         <h2 className="text-4xl font-bold text-green-400 text-center mb-10">Your Cognitive Signal At A Glance</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
@@ -155,7 +151,7 @@ const scientificSources = [
 const signalCards = [
   {
     title: 'Transcript',
-    body: '"Today we're going to explore the impact of AI-driven speech diagnostics..."',
+    body: "Today we're going to explore the impact of AI-driven speech diagnostics...",
     border: 'border-green-500',
     glow: 'green-500',
     text: 'text-green-300',
