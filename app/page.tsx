@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import Particles from 'react-tsparticles'
 import { loadFull } from 'tsparticles'
 import { useCallback, useEffect, useState } from 'react'
+import AudioProcessor from '@/components/AudioProcessor'
 
 export default function HomePage() {
   const particlesInit = useCallback(async (engine) => {
@@ -50,54 +51,46 @@ export default function HomePage() {
           Decoding Speech. Empowering Insight.
         </motion.h1>
 
-        <motion.div
-          className="mt-8 flex flex-col sm:flex-row gap-4 mb-20"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1, duration: 0.75 }}
-        >
-          <button className="px-6 py-3 rounded-2xl bg-cyan-500/10 border border-cyan-400 text-cyan-300 hover:bg-cyan-500/20 transition">
-            Upload Audio
-          </button>
-          <button className="px-6 py-3 rounded-2xl bg-purple-500/10 border border-purple-400 text-purple-300 hover:bg-purple-500/20 transition">
-            Record Live
-          </button>
-        </motion.div>
+        {/* ⬇️ Upload/Record Component */}
+        <AudioProcessor />
       </section>
 
       {/* Mission Statement */}
       <section className="relative z-10 px-6 py-16 bg-gradient-to-b from-gray-950 to-gray-900 text-center">
         <h2 className="text-4xl font-bold text-cyan-400 mb-4">Our Mission</h2>
         <p className="text-lg text-gray-300 max-w-3xl mx-auto">
-          EchoTrace aims to revolutionize communication by translating raw speech into actionable intelligence. Our AI-driven analysis helps users detect tone, stress, emotion, and clarity—empowering clearer, more informed communication.
+          EchoTrace aims to revolutionize communication by translating raw speech into actionable intelligence.
+          Our AI-driven analysis helps users detect tone, stress, emotion, and clarity—empowering clearer, more
+          informed communication.
         </p>
       </section>
 
-     {/* Scientific Support Section */}
-<section className="relative z-10 px-6 py-16 bg-gray-900 text-center">
-  <h2 className="text-4xl font-bold text-purple-400 mb-4">Scientific Backing</h2>
-  <div className="text-left max-w-4xl mx-auto space-y-6">
-    {scientificSources.map((source, i) => (
-      <motion.div
-        key={i}
-        className={`bg-gray-800 p-6 rounded-xl border-l-4 ${source.border} ${source.shadow} transition duration-500 transform hover:scale-105`}
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.6, delay: i * 0.1 }}
-      >
-        <h3 className={`text-xl font-semibold ${source.text}`}>{source.title}</h3>
-        <p className="text-gray-300 text-sm">
-          {source.summary}
-          <a href={source.link} className={`${source.text} underline ml-2`} target="_blank" rel="noreferrer">
-            Read Study
-          </a>
-        </p>
-      </motion.div>
-    ))}
-  </div>
-</section>
-      {/* Cognitive Signal Section */}
+      {/* Scientific Backing */}
+      <section className="relative z-10 px-6 py-16 bg-gray-900 text-center">
+        <h2 className="text-4xl font-bold text-purple-400 mb-4">Scientific Backing</h2>
+        <div className="text-left max-w-4xl mx-auto space-y-6">
+          {scientificSources.map((source, i) => (
+            <motion.div
+              key={i}
+              className={`bg-gray-800 p-6 rounded-xl border-l-4 ${source.border} ${source.shadow} transition duration-500 transform hover:scale-105`}
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: i * 0.1 }}
+            >
+              <h3 className={`text-xl font-semibold ${source.text}`}>{source.title}</h3>
+              <p className="text-gray-300 text-sm">
+                {source.summary}
+                <a href={source.link} className={`${source.text} underline ml-2`} target="_blank" rel="noreferrer">
+                  Read Study
+                </a>
+              </p>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* Cognitive Signal Preview */}
       <section className="relative z-10 px-6 py-20 bg-gradient-to-b from-gray-900 to-black">
         <h2 className="text-4xl font-bold text-green-400 text-center mb-10">Your Cognitive Signal At A Glance</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
@@ -159,35 +152,34 @@ const scientificSources = [
   },
 ]
 
-
 const signalCards = [
   {
     title: 'Transcript',
     body: '"Today we\'re going to explore the impact of AI-driven speech diagnostics..."',
     border: 'border-green-500',
     text: 'text-green-300',
-    shadow: 'hover:shadow-green-500/50',
+    shadow: 'hover:shadow-[0_0_25px_#22c55e]',
   },
   {
     title: 'Emotional Analysis',
     body: 'Detected emotion: Confident | Stress Level: Low',
     border: 'border-pink-500',
     text: 'text-pink-300',
-    shadow: 'hover:shadow-pink-500/50',
+    shadow: 'hover:shadow-[0_0_25px_#ec4899]',
   },
   {
     title: 'Session Summary',
     body: 'Overall tone: Analytical | Key Phrases: "impact", "metrics", "feedback"',
     border: 'border-blue-500',
     text: 'text-blue-300',
-    shadow: 'hover:shadow-blue-500/50',
+    shadow: 'hover:shadow-[0_0_25px_#3b82f6]',
   },
   {
     title: 'Log History',
     body: 'View your last 10 audio sessions and compare sentiment trends.',
     border: 'border-yellow-500',
     text: 'text-yellow-300',
-    shadow: 'hover:shadow-yellow-500/50',
+    shadow: 'hover:shadow-[0_0_25px_#facc15]',
   },
 ]
 
