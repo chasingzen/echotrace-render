@@ -79,7 +79,7 @@ export default function HomePage() {
           {scientificSources.map((source, i) => (
             <motion.div
               key={i}
-              className={`bg-gray-800 p-6 rounded-xl border-l-4 ${source.border} transition duration-500 transform hover:scale-105 hover:shadow-xl hover:shadow-${source.glow}/50`}
+              className={`bg-gray-800 p-6 rounded-xl border-l-4 ${source.border} ${source.shadow} transition duration-500 transform hover:scale-105`}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -95,14 +95,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Your Cognitive Signal At A Glance Preview */}
+      {/* Cognitive Signal Section */}
       <section className="relative z-10 px-6 py-20 bg-gradient-to-b from-gray-900 to-black">
         <h2 className="text-4xl font-bold text-green-400 text-center mb-10">Your Cognitive Signal At A Glance</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {signalCards.map((card, i) => (
             <motion.div
               key={i}
-              className={`bg-gray-800 rounded-2xl p-6 shadow-lg border ${card.border} transition duration-500 transform hover:scale-105 hover:shadow-2xl hover:shadow-${card.glow}/50`}
+              className={`bg-gray-800 rounded-2xl p-6 shadow-lg border ${card.border} ${card.shadow} transition duration-500 transform hover:scale-105`}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -125,8 +125,8 @@ const scientificSources = [
       'Journal of AI Research, 2023 — Proven models show how vocal biomarkers can indicate emotional states with over 85% accuracy using spectral features.',
     link: 'https://www.jair.org/index.php/jair/article/view/12980',
     border: 'border-cyan-500',
-    glow: 'cyan-500',
     text: 'text-cyan-300',
+    shadow: 'hover:shadow-cyan-500/50',
   },
   {
     title: 'Stress Detection from Audio: Cortisol-Inspired AI Systems',
@@ -134,8 +134,8 @@ const scientificSources = [
       'Nature Digital Medicine, 2022 — Research supports the use of audio analysis for early signs of stress, anxiety, and fatigue.',
     link: 'https://www.nature.com/articles/s41746-022-00602-0',
     border: 'border-pink-500',
-    glow: 'pink-500',
     text: 'text-pink-300',
+    shadow: 'hover:shadow-pink-500/50',
   },
   {
     title: 'Vocal Biomarkers in Neurological and Psychiatric Diagnosis',
@@ -143,8 +143,8 @@ const scientificSources = [
       'Frontiers in Neuroscience, 2021 — Describes how AI-powered analysis of vocal patterns is emerging as a tool in neurological health.',
     link: 'https://www.frontiersin.org/articles/10.3389/fnins.2021.752512/full',
     border: 'border-purple-500',
-    glow: 'purple-500',
     text: 'text-purple-300',
+    shadow: 'hover:shadow-purple-500/50',
   },
   {
     title: 'Speech as a Biomarker in Mental Health Diagnostics',
@@ -152,8 +152,8 @@ const scientificSources = [
       'IEEE Transactions on Affective Computing, 2020 — Studies how stress, depression, and anxiety leave measurable acoustic fingerprints in speech.',
     link: 'https://ieeexplore.ieee.org/document/8930425',
     border: 'border-yellow-500',
-    glow: 'yellow-500',
     text: 'text-yellow-300',
+    shadow: 'hover:shadow-yellow-500/50',
   },
 ]
 
@@ -162,29 +162,29 @@ const signalCards = [
     title: 'Transcript',
     body: '"Today we\'re going to explore the impact of AI-driven speech diagnostics..."',
     border: 'border-green-500',
-    glow: 'green-500',
     text: 'text-green-300',
+    shadow: 'hover:shadow-green-500/50',
   },
   {
     title: 'Emotional Analysis',
     body: 'Detected emotion: Confident | Stress Level: Low',
     border: 'border-pink-500',
-    glow: 'pink-500',
     text: 'text-pink-300',
+    shadow: 'hover:shadow-pink-500/50',
   },
   {
     title: 'Session Summary',
     body: 'Overall tone: Analytical | Key Phrases: "impact", "metrics", "feedback"',
     border: 'border-blue-500',
-    glow: 'blue-500',
     text: 'text-blue-300',
+    shadow: 'hover:shadow-blue-500/50',
   },
   {
     title: 'Log History',
     body: 'View your last 10 audio sessions and compare sentiment trends.',
     border: 'border-yellow-500',
-    glow: 'yellow-500',
     text: 'text-yellow-300',
+    shadow: 'hover:shadow-yellow-500/50',
   },
 ]
 
