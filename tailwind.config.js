@@ -4,11 +4,7 @@ module.exports = {
     "./components/**/*.{js,ts,jsx,tsx}"
   ],
   theme: {
-    extend: {
-      animation: {
-        pulseGlow: "pulse 3s ease-in-out infinite"
-      }
-    },
+    extend: {},
   },
   plugins: [],
 }
