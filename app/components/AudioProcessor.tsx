@@ -18,7 +18,7 @@ export default function AudioProcessor() {
 
     await fetch('/api/analyze', {
       method: 'POST',
-      body: formData,
+      body: formData
     })
 
     setAudioURL(URL.createObjectURL(file))
@@ -59,42 +59,15 @@ export default function AudioProcessor() {
   }
 
   return (
-    <div className="text-center mt-12 space-y-4">
-      <input
-        type="file"
-        accept="audio/*"
-        onChange={handleFileUpload}
-        className="hidden"
-        id="upload-input"
-      />
-      <label
-        htmlFor="upload-input"
-        className="px-6 py-3 rounded-2xl bg-cyan-500/10 border border-cyan-400 text-cyan-300 hover:bg-cyan-500/20 transition cursor-pointer inline-block"
-      >
-        Upload Audio
-      </label>
-
+    <div className="text-center space-y-4">
+      <input type="file" accept="audio/*" onChange={handleFileUpload} className="hidden" id="upload-input" />
+      <label htmlFor="upload-input" className="px-4 py-2 bg-cyan-600 text-white rounded cursor-pointer">Upload Audio</label>
       <div>
-        <button
-          onClick={startRecording}
-          className="px-6 py-3 rounded-2xl bg-purple-500/10 border border-purple-400 text-purple-300 hover:bg-purple-500/20 transition mr-2"
-        >
-          Record Live
-        </button>
-        <button
-          onClick={stopRecording}
-          className="px-6 py-3 rounded-2xl bg-red-500/10 border border-red-400 text-red-300 hover:bg-red-500/20 transition"
-        >
-          Stop
-        </button>
+        <button onClick={startRecording} className="px-4 py-2 bg-purple-600 text-white rounded mr-2">Record</button>
+        <button onClick={stopRecording} className="px-4 py-2 bg-red-600 text-white rounded">Stop</button>
       </div>
-
-      {status && <p className="text-sm text-gray-400">{status}</p>}
-      {audioURL && (
-        <audio controls className="mx-auto mt-4">
-          <source src={audioURL} />
-        </audio>
-      )}
+      {status && <p>{status}</p>}
+      {audioURL && <audio controls src={audioURL} className="mx-auto" />}
     </div>
   )
 }
