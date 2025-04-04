@@ -73,29 +73,30 @@ export default function HomePage() {
         </p>
       </section>
 
-      {/* Scientific Support Section */}
-      <section className="relative z-10 px-6 py-16 bg-gray-900 text-center">
-        <h2 className="text-4xl font-bold text-purple-400 mb-4">Scientific Backing</h2>
-        <div className="text-left max-w-4xl mx-auto space-y-6">
-          {scientificSources.map((source, i) => (
-            <motion.div
-              key={i}
-              className={`bg-gray-800 p-6 rounded-xl border-l-4 ${source.border} ${source.shadow} transition duration-500 transform hover:scale-105`}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
-            >
-              <h3 className={`text-xl font-semibold ${source.text}`}>{source.title}</h3>
-              <p className="text-gray-300 text-sm">
-                {source.summary}
-                <a href={source.link} className={`${source.text} underline ml-2`} target="_blank" rel="noreferrer">Read Study</a>
-              </p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
+     {/* Scientific Support Section */}
+<section className="relative z-10 px-6 py-16 bg-gray-900 text-center">
+  <h2 className="text-4xl font-bold text-purple-400 mb-4">Scientific Backing</h2>
+  <div className="text-left max-w-4xl mx-auto space-y-6">
+    {scientificSources.map((source, i) => (
+      <motion.div
+        key={i}
+        className={`bg-gray-800 p-6 rounded-xl border-l-4 ${source.border} ${source.shadow} transition duration-500 transform hover:scale-105`}
+        initial={{ opacity: 0, y: 30 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.6, delay: i * 0.1 }}
+      >
+        <h3 className={`text-xl font-semibold ${source.text}`}>{source.title}</h3>
+        <p className="text-gray-300 text-sm">
+          {source.summary}
+          <a href={source.link} className={`${source.text} underline ml-2`} target="_blank" rel="noreferrer">
+            Read Study
+          </a>
+        </p>
+      </motion.div>
+    ))}
+  </div>
+</section>
       {/* Cognitive Signal Section */}
       <section className="relative z-10 px-6 py-20 bg-gradient-to-b from-gray-900 to-black">
         <h2 className="text-4xl font-bold text-green-400 text-center mb-10">Your Cognitive Signal At A Glance</h2>
@@ -127,7 +128,7 @@ const scientificSources = [
     link: 'https://www.jair.org/index.php/jair/article/view/12980',
     border: 'border-cyan-500',
     text: 'text-cyan-300',
-    shadow: 'hover:shadow-cyan-500/50',
+    shadow: 'hover:shadow-[0_0_25px_#22d3ee]',
   },
   {
     title: 'Stress Detection from Audio: Cortisol-Inspired AI Systems',
@@ -136,7 +137,7 @@ const scientificSources = [
     link: 'https://www.nature.com/articles/s41746-022-00602-0',
     border: 'border-pink-500',
     text: 'text-pink-300',
-    shadow: 'hover:shadow-pink-500/50',
+    shadow: 'hover:shadow-[0_0_25px_#ec4899]',
   },
   {
     title: 'Vocal Biomarkers in Neurological and Psychiatric Diagnosis',
@@ -145,7 +146,7 @@ const scientificSources = [
     link: 'https://www.frontiersin.org/articles/10.3389/fnins.2021.752512/full',
     border: 'border-purple-500',
     text: 'text-purple-300',
-    shadow: 'hover:shadow-purple-500/50',
+    shadow: 'hover:shadow-[0_0_25px_#a855f7]',
   },
   {
     title: 'Speech as a Biomarker in Mental Health Diagnostics',
@@ -154,9 +155,10 @@ const scientificSources = [
     link: 'https://ieeexplore.ieee.org/document/8930425',
     border: 'border-yellow-500',
     text: 'text-yellow-300',
-    shadow: 'hover:shadow-yellow-500/50',
+    shadow: 'hover:shadow-[0_0_25px_#facc15]',
   },
 ]
+
 
 const signalCards = [
   {
