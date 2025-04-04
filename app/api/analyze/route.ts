@@ -1,12 +1,7 @@
-// ✅ Forces use of Node.js runtime so environment variables are available
 export const runtime = 'nodejs'
 
 import { NextResponse } from 'next/server'
 import OpenAI from 'openai'
-
-const openai = new OpenAI({
-  apiKey: process.env?.OPENAI_API_KEY || (() => { throw new Error('OPENAI_API_KEY is not defined') })(),
-})
 
 export async function POST(req: Request) {
   try {
@@ -17,7 +12,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Audio file missing or invalid' }, { status: 400 })
     }
 
-    // ✅ Convert to a valid File object for Whisper
+    // ✅ Lazy-load OpenAI client *after* build
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY || '',
+    })
+
     const blob = new Blob([await audioFile.arrayBuffer()], {
       type: (audioFile as File).type || 'audio/wav',
     })
@@ -30,7 +29,6 @@ export async function POST(req: Request) {
       }
     )
 
-    // ✅ Whisper transcription
     const transcription = await openai.audio.transcriptions.create({
       file: fileForOpenAI,
       model: 'whisper-1',
@@ -38,7 +36,6 @@ export async function POST(req: Request) {
       language: 'en',
     })
 
-    // ✅ GPT-4 analysis
     const prompt = `You are a cognitive speech analyst. Based on this transcript, assess the tone, emotional state, clarity, and any indicators of stress or confidence. Be concise and objective.\n\nTranscript:\n${transcription.text}`
 
     const analysis = await openai.chat.completions.create({
