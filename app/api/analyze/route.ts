@@ -14,9 +14,21 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Audio file missing or invalid' }, { status: 400 })
     }
 
-    const buffer = Buffer.from(await audioFile.arrayBuffer())
+    // ✅ Convert to real File object
+    const blob = new Blob([await audioFile.arrayBuffer()], {
+      type: (audioFile as File).type || 'audio/wav',
+    })
+
+    const fileForOpenAI = new File(
+      [blob],
+      (audioFile as File).name || 'recording.wav',
+      {
+        type: blob.type,
+      }
+    )
+
     const transcription = await openai.audio.transcriptions.create({
-      file: buffer,
+      file: fileForOpenAI,
       model: 'whisper-1',
       response_format: 'json',
       language: 'en',
