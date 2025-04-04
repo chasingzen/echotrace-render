@@ -5,7 +5,7 @@ import { motion } from 'framer-motion'
 import Particles from 'react-tsparticles'
 import { loadFull } from 'tsparticles'
 import { useCallback, useEffect, useState } from 'react'
-import AudioProcessor from '@/components/AudioProcessor'
+import AudioProcessor from '../components/AudioProcessor'
 
 export default function HomePage() {
   const particlesInit = useCallback(async (engine) => {
