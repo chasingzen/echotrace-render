@@ -1,5 +1,6 @@
 'use client'
 
+import './globals.css'
 import { motion } from 'framer-motion'
 import Particles from 'react-tsparticles'
 import { loadFull } from 'tsparticles'
