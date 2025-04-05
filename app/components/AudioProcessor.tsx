@@ -11,7 +11,7 @@ export default function AudioProcessor() {
 
   const sendToAPI = async (file: File) => {
     const formData = new FormData()
-    form.append('audio', file)
+    formData.append('audio', file)
 
     setStatus('Analyzing...')
     try {
