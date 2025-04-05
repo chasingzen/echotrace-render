@@ -13,9 +13,8 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'No file provided' }, { status: 400 })
   }
 
-  const buffer = Buffer.from(await audioFile.arrayBuffer())
   const transcription = await openai.audio.transcriptions.create({
-    file: buffer,
+    file: audioFile,
     model: 'whisper-1',
     response_format: 'json',
     language: language as string,
