@@ -1,107 +1,86 @@
-export const runtime = 'nodejs'
+import OpenAI from "openai"
+import { NextResponse } from "next/server"
 
-import { NextResponse } from 'next/server'
-import OpenAI from 'openai'
-import fetch from 'node-fetch'
-import FormData from 'form-data'
+const openai = new OpenAI()
 
 export async function POST(req: Request) {
-  try {
-    const apiKey = process.env.OPENAI_API_KEY
-    if (!apiKey) {
-      return NextResponse.json({ error: 'Missing OpenAI API Key' }, { status: 500 })
-    }
+  const formData = await req.formData()
+  const audioFile = formData.get('audio') as File
+  const language = formData.get('language') || 'en'
+  const isMedical = formData.get('medicalMode') === 'true'
 
-    const formData = await req.formData()
-    const audioFile = formData.get('audio') as unknown as File
-    const selectedLang = formData.get('language')?.toString() || 'en'
+  if (!audioFile) {
+    return NextResponse.json({ error: 'No file provided' }, { status: 400 })
+  }
 
-    if (!audioFile || typeof audioFile === 'string') {
-      return NextResponse.json({ error: 'Invalid or missing audio file' }, { status: 400 })
-    }
+  const buffer = Buffer.from(await audioFile.arrayBuffer())
+  const transcription = await openai.audio.transcriptions.create({
+    file: buffer,
+    model: 'whisper-1',
+    response_format: 'json',
+    language: language as string,
+  })
 
-    const arrayBuffer = await audioFile.arrayBuffer()
-    const buffer = Buffer.from(arrayBuffer)
+  const basePrompt = `
+You are an advanced speech and clinical insight AI trained to interpret transcripts from human speech. Your task is to analyze the content and detect:
+- Emotional tone (stress, confidence, hesitation, etc.)
+- Speech disorders (stuttering, disfluency, etc.)
+- Clarity, coherence, and complexity
+- Cognitive markers (confusion, aphasia, etc.)
+- Any indicators of underlying neurological or psychological conditions
 
-    const form = new FormData()
-    form.append('file', buffer, {
-      filename: audioFile.name,
-      contentType: audioFile.type || 'audio/wav',
-    })
-    form.append('model', 'whisper-1')
-    form.append('language', selectedLang)
-    form.append('response_format', 'json')
-
-    const whisperRes = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        ...form.getHeaders(),
-      },
-      body: form as any,
-    })
-
-    const whisperData = await whisperRes.json() as { text: string }
-
-    if (!whisperRes.ok) {
-      return NextResponse.json({ error: 'Whisper API failed', detail: whisperData }, { status: 500 })
-    }
-
-    const openai = new OpenAI({ apiKey })
-
-    const prompt = `
-You are an advanced cognitive speech analysis AI with expertise in neurolinguistics, psychiatry, and affective computing.
-
-Given the following transcript, analyze and return the results in the following structured format:
-
----
-
+Structure your response into labeled sections using **bold headings**:
 **Transcript:**
-[Short cleaned transcript]
+[include the clean transcription here]
 
 **Clinical Insights:**
-- Emotional tone
-- Fluency, clarity
-- Vocal features (speed, pauses, pitch, irregularities)
+- Bullet point observations of detected patterns or concerns
+- Mention emotional tone, rhythm, or disruptions
 
 **Risk Flags:**
-- Condition: [Risk Level — Low / Moderate / High]
-  - Reasoning: [why it was flagged]
+List any speech patterns that may correlate with clinical conditions, if any. Use Low/Moderate/High severity.
 
 **Neurological & Psychological Flags:**
-- Condition: [e.g., Tourette’s, Apraxia, Parkinson’s, Autism]
-  - Detected Signs: [e.g., vocal tics, dysfluency, delayed initiation]
-  - Confidence Level: Low / Moderate / High
-  - Reference: [Journal Link]
+- Highlight anything that could indicate apraxia, Tourette, cognitive decline, etc.
 
 **Patient Summary:**
-Summarize the findings in clear, supportive, non-clinical language suitable for general users. Use 2–3 sentences.
+Summarize your findings in easy-to-understand terms a patient could read.
 
 **References:**
-Include 3–5 peer-reviewed research studies related to the detected conditions or insights.  
-Each must use this format:
-- Title (Author(s), Journal, Year): brief summary  
-  URL: https://link-to-study
+Include 3–5 peer-reviewed studies related to the above conditions. Use this format:
+- Title (Author, Journal, Year): Summary  
+  URL: working link
 
-**Only include real studies with working, public URLs.  
-Skip any reference you cannot verify with a valid link.**
-Return all output in readable markdown-style text.
-
-Transcript:
-${whisperData.text}
+Only include real studies with working, public URLs.
+Skip any reference you cannot verify with a valid link.
 `
 
-    const analysis = await openai.chat.completions.create({
-      model: 'gpt-4o',
-      messages: [{ role: 'user', content: prompt }],
-    })
+  const medicalAddon = `
+In Medical Mode:
+- Flag any vocal or language markers associated with neurological, psychiatric, or speech disorders.
+- Consider indicators of: Tourette syndrome, apraxia of speech, Parkinsonian speech, stuttering, depression, anxiety, aphasia, ASD, or cognitive delay.
+- Rate severity as low, moderate, or high.
+- Summarize in patient-friendly language.
+- Link to supporting studies (with working URLs).
+- Skip any reference you cannot verify with a working link.
+`
 
-    return NextResponse.json({
-      transcript: whisperData.text,
-      analysis: analysis.choices[0].message.content,
-      language: selectedLang,
-    })
-  } catch (err: any) {
-    return NextResponse.json({ error: 'Server error', detail: err?.message || err }, { status: 500 })
-  }
+  const prompt = `${basePrompt}${isMedical ? medicalAddon : ''}`
+
+  const chatCompletion = await openai.chat.completions.create({
+    model: 'gpt-4',
+    messages: [
+      { role: 'system', content: prompt },
+      {
+        role: 'user',
+        content: `Transcript:\n\n${transcription.text}`,
+      },
+    ],
+  })
+
+  return NextResponse.json({
+    transcript: transcription.text,
+    analysis: chatCompletion.choices[0].message.content,
+    language,
+  })
 }
