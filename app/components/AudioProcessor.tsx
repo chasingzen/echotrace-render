@@ -11,7 +11,7 @@ export default function AudioProcessor() {
 
   const sendToAPI = async (file: File) => {
     const formData = new FormData()
-    formData.append('audio', file)
+    form.append('audio', file)
 
     setStatus('Analyzing...')
     try {
@@ -54,12 +54,10 @@ export default function AudioProcessor() {
       audioChunks.current = []
 
       mediaRecorder.ondataavailable = (e) => {
-        console.log('Data available:', e.data)
         audioChunks.current.push(e.data)
       }
 
       mediaRecorder.onstop = async () => {
-        console.log('Recorder stopped, preparing audio file...')
         const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' })
         const audioFile = new File([audioBlob], 'recording.wav', { type: 'audio/wav' })
         setAudioURL(URL.createObjectURL(audioFile))
@@ -69,7 +67,6 @@ export default function AudioProcessor() {
 
       mediaRecorder.start()
       setStatus('Recording...')
-      console.log('Recording started...')
     } catch (err) {
       console.error('Microphone access error:', err)
       setStatus('Microphone access denied.')
@@ -77,12 +74,27 @@ export default function AudioProcessor() {
   }
 
   const stopRecording = () => {
-    console.log('Stop button clicked')
     mediaRecorderRef.current?.stop()
+  }
+
+  const downloadPDF = () => {
+    const content = document.getElementById('analysis-report')
+    if (!content) return
+
+    const printWindow = window.open('', '', 'width=800,height=600')
+    if (!printWindow) return
+
+    printWindow.document.write('<html><head><title>EchoTrace Report</title></head><body>')
+    printWindow.document.write(content.innerHTML)
+    printWindow.document.write('</body></html>')
+    printWindow.document.close()
+    printWindow.focus()
+    printWindow.print()
   }
 
   return (
     <div className="text-center mt-12 space-y-6 max-w-3xl mx-auto">
+      {/* Upload */}
       <input
         type="file"
         accept=".mp3, .wav, .m4a, .ogg, .webm, audio/*"
@@ -97,6 +109,7 @@ export default function AudioProcessor() {
         Upload Audio
       </label>
 
+      {/* Record Controls */}
       <div>
         <button
           onClick={startRecording}
@@ -112,21 +125,42 @@ export default function AudioProcessor() {
         </button>
       </div>
 
+      {/* Status */}
       {status && <p className="text-sm text-gray-400">{status}</p>}
 
+      {/* Audio Preview */}
       {audioURL && (
         <audio controls className="mx-auto mt-4">
           <source src={audioURL} />
         </audio>
       )}
 
+      {/* Analysis Result */}
       {result && (
-        <div className="bg-gray-900 border border-cyan-600 p-6 rounded-xl mt-8 shadow-lg">
+        <div
+          className="bg-gray-900 border border-cyan-600 p-6 rounded-xl mt-8 shadow-lg text-left"
+          id="analysis-report"
+        >
           <h3 className="text-cyan-400 font-bold text-lg mb-2">Transcript:</h3>
           <p className="text-gray-300 text-sm mb-4 whitespace-pre-wrap">{result.transcript}</p>
 
           <h3 className="text-purple-400 font-bold text-lg mb-2">AI Insight:</h3>
           <p className="text-gray-300 text-sm whitespace-pre-wrap">{result.analysis}</p>
+
+          <div className="mt-6 flex justify-center gap-4 print:hidden">
+            <button
+              onClick={() => window.print()}
+              className="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition"
+            >
+              Print
+            </button>
+            <button
+              onClick={downloadPDF}
+              className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"
+            >
+              Save as PDF
+            </button>
+          </div>
         </div>
       )}
     </div>
