@@ -60,7 +60,17 @@ export async function POST(req: Request) {
 
     const openai = new OpenAI({ apiKey })
 
-    const prompt = `You are a cognitive speech analyst. Based on this transcript, assess the tone, emotional state, clarity, and any indicators of stress or confidence. Be concise and objective.\n\nTranscript:\n${whisperData.text}`
+    const prompt = `You are an advanced cognitive speech analysis AI trained in linguistics, clinical psychology, and neurology. Based on the following transcript, analyze:
+
+- Emotional state (confidence, anxiety, etc.)
+- Tone, clarity, and speech fluency
+- Potential indicators of mental health conditions (e.g., depression, anxiety, ADHD)
+- Signs of neurological or speech disorders (e.g., Tourette syndrome, apraxia, Parkinsonian speech, stuttering)
+
+Use medically appropriate language, avoid diagnosis, but highlight noteworthy patterns clearly and what medical condition if any potentially could be heard.
+
+Transcript:
+${whisperData.text}`
 
     const analysis = await openai.chat.completions.create({
       model: 'gpt-4o',
