@@ -118,6 +118,7 @@ export default function AudioProcessor() {
   }
 
   return (
+    <>
       {/* Language Selector */}
       <div className="mb-4">
         <label htmlFor="language" className="mr-2 text-gray-300">Language:</label>
@@ -177,5 +178,6 @@ export default function AudioProcessor() {
         </div>
       )}
     </div>
+    </>
   )
 }
