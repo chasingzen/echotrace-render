@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useRef, useState } from 'react'
 
 export default function AudioProcessor() {
   const [status, setStatus] = useState<string | null>(null)
@@ -85,7 +85,7 @@ export default function AudioProcessor() {
     <div className="text-center mt-12 space-y-6 max-w-3xl mx-auto">
       <input
         type="file"
-        accept="audio/*"
+        accept=".mp3, .wav, .m4a, .ogg, .webm, audio/*"
         onChange={handleFileUpload}
         className="hidden"
         id="upload-input"
