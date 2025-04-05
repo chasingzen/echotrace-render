@@ -45,6 +45,33 @@ export default function AudioProcessor() {
     await sendToAPI(file)
   }
 
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const mediaRecorder = new MediaRecorder(stream)
+      mediaRecorderRef.current = mediaRecorder
+      audioChunks.current = []
+
+      mediaRecorder.ondataavailable = (e) => {
+        audioChunks.current.push(e.data)
+      }
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' })
+        const audioFile = new File([audioBlob], 'recording.wav', { type: 'audio/wav' })
+        setAudioURL(URL.createObjectURL(audioFile))
+        setStatus('Recording complete!')
+        await sendToAPI(audioFile)
+      }
+
+      mediaRecorder.start()
+      setStatus('Recording...')
+    } catch (err) {
+      console.error('Microphone access error:', err)
+      setStatus('Microphone access denied.')
+    }
+  }
+
   const stopRecording = () => {
     mediaRecorderRef.current?.stop()
   }
@@ -117,7 +144,7 @@ export default function AudioProcessor() {
         </select>
       </div>
 
-      {/* Upload Controls */}
+      {/* Upload / Record Buttons */}
       <input
         type="file"
         accept=".mp3, .wav, .m4a, .ogg, .webm, audio/*"
@@ -131,6 +158,21 @@ export default function AudioProcessor() {
       >
         Upload Audio
       </label>
+
+      <div>
+        <button
+          onClick={startRecording}
+          className="px-6 py-3 rounded-2xl bg-purple-500/10 border border-purple-400 text-purple-300 hover:bg-purple-500/20 transition mr-2"
+        >
+          Start Recording
+        </button>
+        <button
+          onClick={stopRecording}
+          className="px-6 py-3 rounded-2xl bg-red-500/10 border border-red-400 text-red-300 hover:bg-red-500/20 transition"
+        >
+          Stop
+        </button>
+      </div>
 
       {status && <p className="text-sm text-gray-400">{status}</p>}
 
