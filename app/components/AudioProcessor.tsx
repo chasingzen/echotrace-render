@@ -1,3 +1,4 @@
+
 'use client'
 
 import { useRef, useState } from 'react'
@@ -123,7 +124,7 @@ export default function AudioProcessor() {
   }
 
   return (
-    <div className="text-center mt-12 space-y-6 max-w-3xl mx-auto">
+    <div className="text-center mt-12 space-y-6 max-w-3xl mx-auto px-4">
       {/* Language Selector */}
       <div className="mb-4">
         <label htmlFor="language" className="mr-2 text-gray-300">Language:</label>
@@ -144,7 +145,7 @@ export default function AudioProcessor() {
         </select>
       </div>
 
-      {/* Upload / Record Buttons */}
+      {/* Upload / Record Controls */}
       <input
         type="file"
         accept=".mp3, .wav, .m4a, .ogg, .webm, audio/*"
@@ -189,12 +190,12 @@ export default function AudioProcessor() {
           </p>
 
           <h3 className="text-cyan-400 font-bold text-lg mb-2">Transcript:</h3>
-          <pre className="text-sm bg-black/30 text-gray-200 rounded-md p-4 overflow-auto font-mono mb-6 whitespace-pre-wrap border border-cyan-700">
+          <div className="text-sm text-gray-200 bg-black/30 rounded-md p-4 mb-6 whitespace-pre-wrap border border-cyan-700 max-w-full overflow-x-auto">
             {result.transcript}
-          </pre>
+          </div>
 
           <h3 className="text-purple-400 font-bold text-lg mb-2">AI Insight:</h3>
-          <div className="text-sm text-gray-300 space-y-6 whitespace-pre-wrap leading-relaxed">
+          <div className="text-sm text-gray-300 space-y-6 leading-relaxed max-w-full overflow-x-auto">
             {result.analysis
               .split(/(?=\*\*Transcript:|\*\*Clinical Insights:|\*\*Risk Flags:|\*\*Neurological & Psychological Flags:|\*\*Patient Summary:|\*\*References:)/g)
               .map((section, i) => {
@@ -210,7 +211,7 @@ export default function AudioProcessor() {
                   const lines = content.split('\n').filter(line => line.trim() !== '')
                   return (
                     <div key={i}>
-                      <h4 className={`font-semibold mb-2 text-lg ${titleColor}`}>{title}</h4>
+                      <h4 className={\`font-semibold mb-2 text-lg \${titleColor}\`}>{title}</h4>
                       <div className="space-y-4 mt-2">
                         {lines.map((line, i) => {
                           const titleMatch = line.match(/^- (.+?): (.+)$/)
@@ -239,14 +240,14 @@ export default function AudioProcessor() {
                   const isBullet = line.trim().startsWith('-')
                   return (
                     <p key={j} className="pl-2">
-                      {isBullet ? `• ${line.trim().slice(1).trim()}` : line}
+                      {isBullet ? `â¢ ${line.trim().slice(1).trim()}` : line}
                     </p>
                   )
                 })
 
                 return (
                   <div key={i}>
-                    <h4 className={`font-semibold mb-2 text-lg ${titleColor}`}>{title}</h4>
+                    <h4 className={\`font-semibold mb-2 text-lg \${titleColor}\`}>{title}</h4>
                     <div className="space-y-1">{lines}</div>
                   </div>
                 )
