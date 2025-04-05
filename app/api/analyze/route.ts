@@ -60,17 +60,24 @@ export async function POST(req: Request) {
 
     const openai = new OpenAI({ apiKey })
 
-    const prompt = `You are an advanced cognitive speech analysis AI trained in linguistics, clinical psychology, and neurology. Based on the following transcript, analyze:
+    const prompt = `
+You are an advanced cognitive speech analysis AI with expertise in neurolinguistics, psychiatry, and affective computing.
 
-- Emotional state (confidence, anxiety, etc.)
-- Tone, clarity, and speech fluency
-- Potential indicators of mental health conditions (e.g., depression, anxiety, ADHD)
-- Signs of neurological or speech disorders (e.g., Tourette syndrome, apraxia, Parkinsonian speech, stuttering)
+Given the following transcript, produce a structured report with:
 
-Use medically appropriate language, avoid diagnosis, but highlight noteworthy patterns clearly and what medical condition if any potentially could be heard.
+1. **Transcript** (cleaned-up if needed)
+2. **Clinical Insights**: Tone, emotion, fluency, and any signs of:
+   - Mental health indicators (e.g., depression, anxiety, ADHD)
+   - Neurological speech disorders (e.g., apraxia, Tourette’s, Parkinsonian markers)
+3. **Risk Flags**: Flag each potential condition as Low, Moderate, or High Risk (with reasoning).
+4. **Patient-Friendly Summary**: Rewrite results in clear, supportive language suitable for non-clinical users.
+5. **References**: Link to any supporting scientific research or papers.
+
+Use medically appropriate tone, never diagnose. Only highlight patterns that warrant attention.
 
 Transcript:
-${whisperData.text}`
+${whisperData.text}
+`
 
     const analysis = await openai.chat.completions.create({
       model: 'gpt-4o',
