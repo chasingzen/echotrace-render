@@ -2,7 +2,7 @@ export const runtime = 'nodejs'
 
 import { NextResponse } from 'next/server'
 import OpenAI from 'openai'
-import { Readable } from 'stream'
+import fetch from 'node-fetch'
 import FormData from 'form-data'
 
 export async function POST(req: Request) {
@@ -27,7 +27,6 @@ export async function POST(req: Request) {
       size: audioFile.size,
     })
 
-    // Convert to buffer
     const arrayBuffer = await audioFile.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 
@@ -40,14 +39,14 @@ export async function POST(req: Request) {
     form.append('language', 'en')
     form.append('response_format', 'json')
 
-    console.log('⚙️ Sending to Whisper using fetch...')
+    console.log('⚙️ Sending to Whisper using node-fetch...')
     const whisperRes = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
         ...form.getHeaders(),
       },
-      body: form,
+      body: form as any,
     })
 
     const whisperData = await whisperRes.json()
@@ -74,9 +73,6 @@ export async function POST(req: Request) {
     })
   } catch (err: any) {
     console.error('🔥 Final route error:', err)
-    return NextResponse.json(
-      { error: 'Server error', detail: err?.message || err },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Server error', detail: err?.message || err }, { status: 500 })
   }
 }
