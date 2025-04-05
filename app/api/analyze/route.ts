@@ -5,15 +5,13 @@ import OpenAI from 'openai'
 
 export async function POST(req: Request) {
   try {
-    // Check if the key is being injected at runtime
+    // Log the runtime availability of the API key
     const apiKey = process.env.OPENAI_API_KEY
     console.log('🔐 RUNTIME API KEY:', apiKey ? 'Exists ✅' : 'Missing ❌')
 
     if (!apiKey) {
       return NextResponse.json(
-        {
-          error: 'OpenAI API key is missing at runtime. Check your Render env vars.',
-        },
+        { error: 'OpenAI API key is missing at runtime. Check your Render env vars.' },
         { status: 500 }
       )
     }
@@ -33,15 +31,10 @@ export async function POST(req: Request) {
       size: fileMeta.size,
     })
 
-    const blob = new Blob([await audioFile.arrayBuffer()], {
-      type: fileMeta.type || 'audio/wav',
-    })
-
     const openai = new OpenAI({ apiKey })
 
-    const whisperFile = new File([blob], fileMeta.name || 'recording.wav', {
-      type: blob.type,
-    })
+    // Use the uploaded file directly, cast it for OpenAI
+    const whisperFile = audioFile as unknown as File
 
     console.log('⚙️ Sending to Whisper...')
     const transcription = await openai.audio.transcriptions.create({
