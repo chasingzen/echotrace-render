@@ -78,10 +78,13 @@ Given the following transcript, analyze and return the results in the following 
 Summarize the findings in clear, supportive, non-clinical language suitable for general users. Use 2–3 sentences.
 
 **References:**
-Include 3–5 peer-reviewed references related to any flagged conditions or detected markers. Use this format:
-- Title (Author(s), Journal, Year): [summary]
-  - URL: [working link]
+Include 3–5 peer-reviewed research studies related to the detected conditions or insights.  
+Each must use this format:
+- Title (Author(s), Journal, Year): brief summary  
+  URL: https://link-to-study
 
+**Only include real studies with working, public URLs.  
+Skip any reference you cannot verify with a valid link.**
 Return all output in readable markdown-style text.
 
 Transcript:
