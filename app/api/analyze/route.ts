@@ -14,6 +14,7 @@ export async function POST(req: Request) {
 
     const formData = await req.formData()
     const audioFile = formData.get('audio') as unknown as File
+    const selectedLang = formData.get('language')?.toString() || 'en'
 
     if (!audioFile || typeof audioFile === 'string') {
       return NextResponse.json({ error: 'Invalid or missing audio file' }, { status: 400 })
@@ -28,7 +29,7 @@ export async function POST(req: Request) {
       contentType: audioFile.type || 'audio/wav',
     })
     form.append('model', 'whisper-1')
-    form.append('language', 'en')
+    form.append('language', selectedLang)
     form.append('response_format', 'json')
 
     const whisperRes = await fetch('https://api.openai.com/v1/audio/transcriptions', {
@@ -68,6 +69,12 @@ Given the following transcript, analyze and return the results in the following 
   - Reasoning: [why it was flagged]
 - (e.g., Depression, Apraxia, Tourette’s, ADHD)
 
+**Neurological & Psychological Flags:**
+- Condition: [e.g., Tourette’s, Apraxia, Parkinson’s, Autism]
+  - Detected Signs: [e.g., vocal tics, dysfluency, delayed initiation]
+  - Confidence Level: Low / Moderate / High
+  - Reference: [Journal Link]
+
 **Patient Summary:**
 Summarize the findings in clear, supportive, non-clinical language suitable for general users. Use 2–3 sentences.
 
@@ -91,6 +98,7 @@ ${whisperData.text}
     return NextResponse.json({
       transcript: whisperData.text,
       analysis: analysis.choices[0].message.content,
+      language: selectedLang,
     })
   } catch (err: any) {
     return NextResponse.json({ error: 'Server error', detail: err?.message || err }, { status: 500 })
