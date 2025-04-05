@@ -21,8 +21,6 @@ export default function AudioProcessor() {
       })
 
       const data = await res.json()
-      console.log('API Response:', data)
-
       if (res.ok) {
         setResult(data)
         setStatus('Done!')
@@ -40,7 +38,6 @@ export default function AudioProcessor() {
     const file = e.target.files?.[0]
     if (!file) return
 
-    console.log('Selected file:', file)
     setAudioURL(URL.createObjectURL(file))
     setStatus('Uploading...')
     await sendToAPI(file)
@@ -77,24 +74,53 @@ export default function AudioProcessor() {
     mediaRecorderRef.current?.stop()
   }
 
-  const downloadPDF = () => {
+  const downloadText = () => {
     const content = document.getElementById('analysis-report')
     if (!content) return
 
-    const printWindow = window.open('', '', 'width=800,height=600')
-    if (!printWindow) return
+    const text = content.innerText
+    const blob = new Blob([text], { type: 'text/plain' })
+    const link = document.createElement('a')
+    link.href = URL.createObjectURL(blob)
+    link.download = `EchoTrace_Report_${new Date().toISOString()}.txt`
+    link.click()
+  }
 
-    printWindow.document.write('<html><head><title>EchoTrace Report</title></head><body>')
-    printWindow.document.write(content.innerHTML)
-    printWindow.document.write('</body></html>')
-    printWindow.document.close()
-    printWindow.focus()
-    printWindow.print()
+  const downloadCustomPDF = () => {
+    const content = document.getElementById('analysis-report')
+    if (!content) return
+
+    const timestamp = new Date().toLocaleString()
+    const logo = `<h1 style="color:#00ffff; font-family:sans-serif;">EchoTrace</h1>`
+
+    const html = `
+      <html>
+        <head>
+          <title>EchoTrace Report</title>
+          <style>
+            body { font-family: sans-serif; padding: 2rem; color: #333; }
+            h1 { margin-bottom: 0; }
+            .timestamp { font-size: 0.9rem; color: #666; margin-bottom: 1rem; }
+          </style>
+        </head>
+        <body>
+          ${logo}
+          <div class="timestamp">Generated: ${timestamp}</div>
+          ${content.innerHTML}
+        </body>
+      </html>
+    `
+
+    const blob = new Blob([html], { type: 'application/pdf' })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = `EchoTrace_Report_${new Date().toISOString()}.pdf`
+    link.click()
   }
 
   return (
     <div className="text-center mt-12 space-y-6 max-w-3xl mx-auto">
-      {/* Upload */}
       <input
         type="file"
         accept=".mp3, .wav, .m4a, .ogg, .webm, audio/*"
@@ -109,7 +135,6 @@ export default function AudioProcessor() {
         Upload Audio
       </label>
 
-      {/* Record Controls */}
       <div>
         <button
           onClick={startRecording}
@@ -125,41 +150,45 @@ export default function AudioProcessor() {
         </button>
       </div>
 
-      {/* Status */}
       {status && <p className="text-sm text-gray-400">{status}</p>}
 
-      {/* Audio Preview */}
       {audioURL && (
         <audio controls className="mx-auto mt-4">
           <source src={audioURL} />
         </audio>
       )}
 
-      {/* Analysis Result */}
       {result && (
-        <div
-          className="bg-gray-900 border border-cyan-600 p-6 rounded-xl mt-8 shadow-lg text-left"
-          id="analysis-report"
-        >
+        <div className="bg-gray-900 border border-cyan-600 p-6 rounded-xl mt-8 shadow-lg text-left" id="analysis-report">
+          <p className="text-xs text-gray-400 mb-4">Generated: {new Date().toLocaleString()}</p>
+
           <h3 className="text-cyan-400 font-bold text-lg mb-2">Transcript:</h3>
           <p className="text-gray-300 text-sm mb-4 whitespace-pre-wrap">{result.transcript}</p>
 
           <h3 className="text-purple-400 font-bold text-lg mb-2">AI Insight:</h3>
-          <p className="text-gray-300 text-sm whitespace-pre-wrap">{result.analysis}</p>
+          <div className="text-sm text-gray-300 space-y-4 whitespace-pre-wrap">
+            {result.analysis.split(/(?=\*\*Transcript:|\*\*Clinical Insights:|\*\*Risk Flags:|\*\*Patient Summary:|\*\*References:)/g).map((section, i) => {
+              const title = section.match(/\*\*(.*?)\*\*/)?.[1] || 'Section'
+              const content = section.replace(/\*\*(.*?)\*\*\s*/, '')
 
-          <div className="mt-6 flex justify-center gap-4 print:hidden">
-            <button
-              onClick={() => window.print()}
-              className="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition"
-            >
-              Print
-            </button>
-            <button
-              onClick={downloadPDF}
-              className="px-4 py-2 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition"
-            >
-              Save as PDF
-            </button>
+              let titleColor = 'text-cyan-400'
+              if (title.includes('Risk')) titleColor = 'text-yellow-400'
+              else if (title.includes('Patient')) titleColor = 'text-green-400'
+              else if (title.includes('Insights')) titleColor = 'text-purple-400'
+
+              return (
+                <div key={i}>
+                  <h4 className={`font-semibold mb-1 ${titleColor}`}>{title}</h4>
+                  <p className="text-gray-200 leading-relaxed">{content.trim()}</p>
+                </div>
+              )
+            })}
+          </div>
+
+          <div className="mt-6 flex flex-wrap justify-center gap-4 print:hidden">
+            <button onClick={() => window.print()} className="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700 transition">Print</button>
+            <button onClick={downloadCustomPDF} className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition">Download .pdf</button>
+            <button onClick={downloadText} className="px-4 py-2 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition">Download .txt</button>
           </div>
         </div>
       )}
