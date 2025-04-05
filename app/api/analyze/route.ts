@@ -52,7 +52,7 @@ export async function POST(req: Request) {
     const prompt = `
 You are an advanced cognitive speech analysis AI with expertise in neurolinguistics, psychiatry, and affective computing.
 
-Given the following transcript, analyze and return the results in the following structured format (use **headings** and **bulleted lists** where helpful):
+Given the following transcript, analyze and return the results in the following structured format:
 
 ---
 
@@ -67,7 +67,6 @@ Given the following transcript, analyze and return the results in the following 
 **Risk Flags:**
 - Condition: [Risk Level — Low / Moderate / High]
   - Reasoning: [why it was flagged]
-- (e.g., Depression, Apraxia, Tourette’s, ADHD)
 
 **Neurological & Psychological Flags:**
 - Condition: [e.g., Tourette’s, Apraxia, Parkinson’s, Autism]
@@ -79,12 +78,11 @@ Given the following transcript, analyze and return the results in the following 
 Summarize the findings in clear, supportive, non-clinical language suitable for general users. Use 2–3 sentences.
 
 **References:**
-- Title (Journal, Year): [URL]
-- Use 1–3 supporting research links if available
+Include 3–5 peer-reviewed references related to any flagged conditions or detected markers. Use this format:
+- Title (Author(s), Journal, Year): [summary]
+  - URL: [working link]
 
----
-
-Only include conditions or flags if they are truly detectable via voice. Do not diagnose. Return results using the format above.
+Return all output in readable markdown-style text.
 
 Transcript:
 ${whisperData.text}
