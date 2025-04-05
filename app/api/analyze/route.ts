@@ -49,7 +49,7 @@ export async function POST(req: Request) {
       body: form as any,
     })
 
-    const whisperData = await whisperRes.json()
+    const whisperData = await whisperRes.json() as { text: string }
 
     if (!whisperRes.ok) {
       console.error('❌ Whisper error:', whisperData)
