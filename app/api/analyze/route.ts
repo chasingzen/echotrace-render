@@ -8,8 +8,6 @@ import FormData from 'form-data'
 export async function POST(req: Request) {
   try {
     const apiKey = process.env.OPENAI_API_KEY
-    console.log('🔐 RUNTIME API KEY:', apiKey ? 'Exists ✅' : 'Missing ❌')
-
     if (!apiKey) {
       return NextResponse.json({ error: 'Missing OpenAI API Key' }, { status: 500 })
     }
@@ -20,12 +18,6 @@ export async function POST(req: Request) {
     if (!audioFile || typeof audioFile === 'string') {
       return NextResponse.json({ error: 'Invalid or missing audio file' }, { status: 400 })
     }
-
-    console.log('📦 Received file:', {
-      name: audioFile.name,
-      type: audioFile.type,
-      size: audioFile.size,
-    })
 
     const arrayBuffer = await audioFile.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
@@ -39,7 +31,6 @@ export async function POST(req: Request) {
     form.append('language', 'en')
     form.append('response_format', 'json')
 
-    console.log('⚙️ Sending to Whisper using node-fetch...')
     const whisperRes = await fetch('https://api.openai.com/v1/audio/transcriptions', {
       method: 'POST',
       headers: {
@@ -52,28 +43,41 @@ export async function POST(req: Request) {
     const whisperData = await whisperRes.json() as { text: string }
 
     if (!whisperRes.ok) {
-      console.error('❌ Whisper error:', whisperData)
       return NextResponse.json({ error: 'Whisper API failed', detail: whisperData }, { status: 500 })
     }
-
-    console.log('✅ Transcription:', whisperData.text)
 
     const openai = new OpenAI({ apiKey })
 
     const prompt = `
 You are an advanced cognitive speech analysis AI with expertise in neurolinguistics, psychiatry, and affective computing.
 
-Given the following transcript, produce a structured report with:
+Given the following transcript, analyze and return the results in the following structured format (use **headings** and **bulleted lists** where helpful):
 
-1. **Transcript** (cleaned-up if needed)
-2. **Clinical Insights**: Tone, emotion, fluency, and any signs of:
-   - Mental health indicators (e.g., depression, anxiety, ADHD)
-   - Neurological speech disorders (e.g., apraxia, Tourette’s, Parkinsonian markers)
-3. **Risk Flags**: Flag each potential condition as Low, Moderate, or High Risk (with reasoning).
-4. **Patient-Friendly Summary**: Rewrite results in clear, supportive language suitable for non-clinical users.
-5. **References**: Link to any supporting scientific research or papers.
+---
 
-Use medically appropriate tone, never diagnose. Only highlight patterns that warrant attention.
+**Transcript:**
+[Short cleaned transcript]
+
+**Clinical Insights:**
+- Emotional tone
+- Fluency, clarity
+- Vocal features (speed, pauses, pitch, irregularities)
+
+**Risk Flags:**
+- Condition: [Risk Level — Low / Moderate / High]
+  - Reasoning: [why it was flagged]
+- (e.g., Depression, Apraxia, Tourette’s, ADHD)
+
+**Patient Summary:**
+Summarize the findings in clear, supportive, non-clinical language suitable for general users. Use 2–3 sentences.
+
+**References:**
+- Title (Journal, Year): [URL]
+- Use 1–3 supporting research links if available
+
+---
+
+Only include conditions or flags if they are truly detectable via voice. Do not diagnose. Return results using the format above.
 
 Transcript:
 ${whisperData.text}
@@ -89,7 +93,6 @@ ${whisperData.text}
       analysis: analysis.choices[0].message.content,
     })
   } catch (err: any) {
-    console.error('🔥 Final route error:', err)
     return NextResponse.json({ error: 'Server error', detail: err?.message || err }, { status: 500 })
   }
 }
