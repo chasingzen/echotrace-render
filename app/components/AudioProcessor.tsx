@@ -167,9 +167,9 @@ export default function AudioProcessor() {
         <div id="analysis-report" className="mt-6 text-left bg-gray-900 border border-cyan-600 p-6 rounded-xl shadow-md max-w-full overflow-x-auto">
           <p className="text-xs text-gray-400 mb-4">Generated: {new Date().toLocaleString()}</p>
           <h3 className="text-cyan-400 font-bold text-lg mb-2">Transcript:</h3>
-          <div className="w-full md:max-w-2xl mx-auto bg-black/30 text-gray-200 p-4 rounded mb-6 border border-cyan-700 whitespace-pre-wrap overflow-x-auto">{result.transcript}</div>
+          <div className="w-full md:max-w-2xl mx-auto bg-black/30 text-gray-200 text-sm md:text-base p-4 rounded mb-6 border border-cyan-700 whitespace-pre-wrap overflow-x-auto space-y-2">{result.transcript}</div>
           <h3 className="text-purple-400 font-bold text-lg mb-2">AI Insight:</h3>
-          <div className="w-full md:max-w-2xl mx-auto bg-gray-800 text-gray-200 p-4 rounded whitespace-pre-wrap overflow-x-auto space-y-4">{result.analysis}</div>
+          <div className="w-full md:max-w-2xl mx-auto bg-gray-800 text-gray-200 text-sm md:text-base p-4 rounded whitespace-pre-wrap overflow-x-auto space-y-4 leading-relaxed">{result.analysis}</div>
           <div className="mt-6 flex flex-wrap justify-center gap-4 print:hidden">
             <button onClick={() => window.print()} className="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700">Print</button>
             <button onClick={downloadCustomPDF} className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700">Download PDF</button>
