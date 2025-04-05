@@ -1,4 +1,3 @@
-
 'use client'
 
 import { useRef, useState } from 'react'
@@ -76,7 +75,6 @@ export default function AudioProcessor() {
   const stopRecording = () => {
     mediaRecorderRef.current?.stop()
   }
-
   const downloadText = () => {
     const content = document.getElementById('analysis-report')
     if (!content) return
@@ -122,7 +120,6 @@ export default function AudioProcessor() {
     link.download = `EchoTrace_Report_${new Date().toISOString()}.pdf`
     link.click()
   }
-
   return (
     <div className="text-center mt-12 space-y-6 max-w-3xl mx-auto px-4">
       {/* Language Selector */}
@@ -182,7 +179,6 @@ export default function AudioProcessor() {
           <source src={audioURL} />
         </audio>
       )}
-
       {result && (
         <div className="bg-gray-900 border border-cyan-600 p-6 rounded-xl mt-8 shadow-lg text-left" id="analysis-report">
           <p className="text-xs text-gray-400 mb-4">
@@ -211,7 +207,7 @@ export default function AudioProcessor() {
                   const lines = content.split('\n').filter(line => line.trim() !== '')
                   return (
                     <div key={i}>
-                      <h4 className={\`font-semibold mb-2 text-lg \${titleColor}\`}>{title}</h4>
+                      <h4 className={`font-semibold mb-2 text-lg ${titleColor}`}>{title}</h4>
                       <div className="space-y-4 mt-2">
                         {lines.map((line, i) => {
                           const titleMatch = line.match(/^- (.+?): (.+)$/)
@@ -240,14 +236,14 @@ export default function AudioProcessor() {
                   const isBullet = line.trim().startsWith('-')
                   return (
                     <p key={j} className="pl-2">
-                      {isBullet ? `â¢ ${line.trim().slice(1).trim()}` : line}
+                      {isBullet ? `• ${line.trim().slice(1).trim()}` : line}
                     </p>
                   )
                 })
 
                 return (
                   <div key={i}>
-                    <h4 className={\`font-semibold mb-2 text-lg \${titleColor}\`}>{title}</h4>
+                    <h4 className={`font-semibold mb-2 text-lg ${titleColor}`}>{title}</h4>
                     <div className="space-y-1">{lines}</div>
                   </div>
                 )
