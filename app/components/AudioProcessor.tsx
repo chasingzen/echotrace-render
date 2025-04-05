@@ -117,7 +117,6 @@ export default function AudioProcessor() {
     link.href = url
     link.download = `EchoTrace_Report_${new Date().toISOString()}.pdf`
     link.click()
-  }
 
   return (
     <div className="text-center mt-12 space-y-6 max-w-3xl mx-auto px-4">
