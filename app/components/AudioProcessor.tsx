@@ -23,7 +23,6 @@ export default function AudioProcessor() {
         method: 'POST',
         body: formData,
       })
-
       const data = await res.json()
       if (res.ok) {
         setResult(data)
@@ -41,7 +40,6 @@ export default function AudioProcessor() {
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
-
     setAudioURL(URL.createObjectURL(file))
     setStatus('Uploading...')
     await sendToAPI(file)
@@ -117,9 +115,10 @@ export default function AudioProcessor() {
     link.href = url
     link.download = `EchoTrace_Report_${new Date().toISOString()}.pdf`
     link.click()
+  }
 
   return (
-    <div className="text-center mt-12 space-y-6 max-w-3xl mx-auto px-4">
+  }
       {/* Language Selector */}
       <div className="mb-4">
         <label htmlFor="language" className="mr-2 text-gray-300">Language:</label>
@@ -165,36 +164,12 @@ export default function AudioProcessor() {
       {status && <p className="text-gray-400 text-sm">{status}</p>}
       {audioURL && <audio controls className="mx-auto mt-4"><source src={audioURL} /></audio>}
       {result && (
-        <div id="analysis-report" className="mt-6 text-left bg-gray-900 border border-cyan-600 p-6 rounded-xl shadow-md">
-          <p className="text-xs text-gray-400 mb-4">Generated: {new Date().toLocaleString()}</p>
-          <h3 className="text-cyan-400 font-bold text-lg mb-2">Transcript:</h3>
-          <div className="bg-black/30 text-gray-200 p-4 rounded mb-6 border border-cyan-700 max-w-full overflow-x-auto whitespace-pre-wrap">{result.transcript}</div>
-          <h3 className="text-purple-400 font-bold text-lg mb-2">AI Insight:</h3>
-          <div className="bg-gray-800 text-gray-200 p-4 rounded whitespace-pre-wrap max-w-full overflow-x-auto space-y-4">{result.analysis}
-          <h3 className="text-yellow-400 font-bold text-lg mt-10 mb-2">Learn More</h3>
-          <p className="text-sm text-gray-300 mb-2">
-            Hover over any term below to learn more about conditions detected in your speech:
-          </p>
-          <div className="flex flex-wrap gap-3 text-sm text-white">
-            {["Tourette Syndrome", "Apraxia", "Parkinsonian Speech", "Depression", "Anxiety", "Aphasia", "Autism Spectrum", "Cognitive Decline"].map((disorder, index) => (
-              <div key={index} className="relative group bg-gray-700 px-3 py-1 rounded-full cursor-pointer hover:bg-cyan-700 transition">
-                {disorder}
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 opacity-0 group-hover:opacity-100 group-hover:block transition-opacity duration-200 bg-gray-900 text-white text-xs p-3 rounded-lg shadow-lg w-64 z-50">
-                  {{
-                    "Tourette Syndrome": "A neurological disorder characterized by repetitive, involuntary movements and vocalizations called tics.",
-                    "Apraxia": "A motor speech disorder making it hard to speak correctly, often caused by brain damage.",
-                    "Parkinsonian Speech": "Speech changes from Parkinson’s disease, often quiet, monotone, or slurred.",
-                    "Depression": "Mood disorder affecting tone, pace, and clarity of speech.",
-                    "Anxiety": "Can lead to rapid, shaky, or hesitant speech patterns.",
-                    "Aphasia": "A condition causing difficulty in expressing or understanding language.",
-                    "Autism Spectrum": "May include atypical tone, inflection, or rhythm in speech.",
-                    "Cognitive Decline": "Speech may reflect memory loss, disorganization, or reduced fluency."
-                  }[disorder]}
-                </div>
-              </div>
-            ))}
-          </div>
-
+        <div id="analysis-report" className="mt-6 text-left bg-gray-900 border border-cyan-600 p-6 rounded-xl shadow-md w-full sm:w-11/12 md:w-4/5 lg:w-3/4 xl:w-2/3 2xl:w-1/2 mx-auto">
+          <p className="w-full break-words px-2 text-xs text-gray-400 mb-4">Generated: {new Date().toLocaleString()}</p>
+          <h3 className="w-full break-words px-2 text-cyan-400 font-bold text-lg mb-2">Transcript:</h3>
+          <div className="bg-black/30 text-gray-200 text-sm md:text-base p-6 rounded mb-6 border border-cyan-700 whitespace-pre-wrap break-words leading-relaxed space-y-2">{result.transcript}</div>
+          <h3 className="w-full break-words px-2 text-purple-400 font-bold text-lg mb-2">AI Insight:</h3>
+          <div className="bg-gray-800 text-gray-200 text-sm md:text-base p-6 rounded whitespace-pre-wrap break-words leading-relaxed space-y-4">{result.analysis}</div>
           <div className="mt-6 flex flex-wrap justify-center gap-4 print:hidden">
             <button onClick={() => window.print()} className="px-4 py-2 bg-green-600 text-white rounded-xl hover:bg-green-700">Print</button>
             <button onClick={downloadCustomPDF} className="px-4 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700">Download PDF</button>
