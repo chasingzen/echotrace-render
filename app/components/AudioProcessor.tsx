@@ -5,13 +5,15 @@ import { useRef, useState } from 'react'
 export default function AudioProcessor() {
   const [status, setStatus] = useState<string | null>(null)
   const [audioURL, setAudioURL] = useState<string | null>(null)
-  const [result, setResult] = useState<{ transcript: string; analysis: string } | null>(null)
+  const [result, setResult] = useState<{ transcript: string; analysis: string; language?: string } | null>(null)
+  const [language, setLanguage] = useState('en')
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunks = useRef<Blob[]>([])
 
   const sendToAPI = async (file: File) => {
     const formData = new FormData()
     formData.append('audio', file)
+    formData.append('language', language)
 
     setStatus('Analyzing...')
     try {
@@ -122,6 +124,27 @@ export default function AudioProcessor() {
 
   return (
     <div className="text-center mt-12 space-y-6 max-w-3xl mx-auto">
+      {/* Language Selector */}
+      <div className="mb-4">
+        <label htmlFor="language" className="mr-2 text-gray-300">Language:</label>
+        <select
+          id="language"
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
+          className="bg-gray-800 text-white border border-gray-600 rounded px-3 py-1"
+        >
+          <option value="en">English</option>
+          <option value="es">Spanish</option>
+          <option value="fr">French</option>
+          <option value="de">German</option>
+          <option value="zh">Chinese</option>
+          <option value="ar">Arabic</option>
+          <option value="hi">Hindi</option>
+          <option value="pt">Portuguese</option>
+        </select>
+      </div>
+
+      {/* Upload / Record Controls */}
       <input
         type="file"
         accept=".mp3, .wav, .m4a, .ogg, .webm, audio/*"
@@ -161,7 +184,9 @@ export default function AudioProcessor() {
 
       {result && (
         <div className="bg-gray-900 border border-cyan-600 p-6 rounded-xl mt-8 shadow-lg text-left" id="analysis-report">
-          <p className="text-xs text-gray-400 mb-4">Generated: {new Date().toLocaleString()}</p>
+          <p className="text-xs text-gray-400 mb-4">
+            Generated: {new Date().toLocaleString()} | Language: {result.language?.toUpperCase() || 'EN'}
+          </p>
 
           <h3 className="text-cyan-400 font-bold text-lg mb-2">Transcript:</h3>
           <pre className="text-sm bg-black/30 text-gray-200 rounded-md p-4 overflow-auto font-mono mb-6 whitespace-pre-wrap border border-cyan-700">
@@ -171,7 +196,7 @@ export default function AudioProcessor() {
           <h3 className="text-purple-400 font-bold text-lg mb-2">AI Insight:</h3>
           <div className="text-sm text-gray-300 space-y-6 whitespace-pre-wrap leading-relaxed">
             {result.analysis
-              .split(/(?=\*\*Transcript:|\*\*Clinical Insights:|\*\*Risk Flags:|\*\*Patient Summary:|\*\*References:)/g)
+              .split(/(?=\*\*Transcript:|\*\*Clinical Insights:|\*\*Risk Flags:|\*\*Neurological & Psychological Flags:|\*\*Patient Summary:|\*\*References:)/g)
               .map((section, i) => {
                 const title = section.match(/\*\*(.*?)\*\*/)?.[1] || 'Section'
                 const content = section.replace(/\*\*(.*?)\*\*\s*/, '').trim()
@@ -198,7 +223,11 @@ export default function AudioProcessor() {
                   }
 
                   return (
-                    <p key={j} className="pl-2" dangerouslySetInnerHTML={{ __html: isBullet ? `• ${formatted.trim().slice(1).trim()}` : formatted }} />
+                    <p key={j} className="pl-2" dangerouslySetInnerHTML={{
+                      __html: isBullet
+                        ? `• ${formatted.trim().slice(1).trim()}`
+                        : formatted
+                    }} />
                   )
                 })
 
