@@ -7,6 +7,7 @@ export default function AudioProcessor() {
   const [audioURL, setAudioURL] = useState<string | null>(null)
   const [result, setResult] = useState<{ transcript: string; analysis: string; language?: string } | null>(null)
   const [language, setLanguage] = useState('en')
+  const [medicalMode, setMedicalMode] = useState(false)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const audioChunks = useRef<Blob[]>([])
 
@@ -14,6 +15,7 @@ export default function AudioProcessor() {
     const formData = new FormData()
     formData.append('audio', file)
     formData.append('language', language)
+    formData.append('medicalMode', medicalMode.toString())
 
     setStatus('Analyzing...')
     try {
@@ -120,6 +122,7 @@ export default function AudioProcessor() {
     link.download = `EchoTrace_Report_${new Date().toISOString()}.pdf`
     link.click()
   }
+
   return (
     <div className="text-center mt-12 space-y-6 max-w-3xl mx-auto px-4">
       {/* Language Selector */}
@@ -142,6 +145,17 @@ export default function AudioProcessor() {
         </select>
       </div>
 
+      {/* Medical Mode Toggle */}
+      <div className="flex items-center justify-center gap-2 text-sm text-gray-300">
+        <label htmlFor="medical-mode" className="cursor-pointer">Enable Medical Mode</label>
+        <input
+          id="medical-mode"
+          type="checkbox"
+          checked={medicalMode}
+          onChange={() => setMedicalMode(!medicalMode)}
+          className="w-4 h-4"
+        />
+      </div>
       {/* Upload / Record Controls */}
       <input
         type="file"
@@ -179,6 +193,7 @@ export default function AudioProcessor() {
           <source src={audioURL} />
         </audio>
       )}
+
       {result && (
         <div className="bg-gray-900 border border-cyan-600 p-6 rounded-xl mt-8 shadow-lg text-left" id="analysis-report">
           <p className="text-xs text-gray-400 mb-4">
@@ -189,7 +204,6 @@ export default function AudioProcessor() {
           <div className="text-sm text-gray-200 bg-black/30 rounded-md p-4 mb-6 whitespace-pre-wrap border border-cyan-700 max-w-full overflow-x-auto">
             {result.transcript}
           </div>
-
           <h3 className="text-purple-400 font-bold text-lg mb-2">AI Insight:</h3>
           <div className="text-sm text-gray-300 space-y-6 leading-relaxed max-w-full overflow-x-auto">
             {result.analysis
