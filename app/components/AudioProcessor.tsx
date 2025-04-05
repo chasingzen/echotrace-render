@@ -45,33 +45,6 @@ export default function AudioProcessor() {
     await sendToAPI(file)
   }
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-      const mediaRecorder = new MediaRecorder(stream)
-      mediaRecorderRef.current = mediaRecorder
-      audioChunks.current = []
-
-      mediaRecorder.ondataavailable = (e) => {
-        audioChunks.current.push(e.data)
-      }
-
-      mediaRecorder.onstop = async () => {
-        const audioBlob = new Blob(audioChunks.current, { type: 'audio/wav' })
-        const audioFile = new File([audioBlob], 'recording.wav', { type: 'audio/wav' })
-        setAudioURL(URL.createObjectURL(audioFile))
-        setStatus('Recording complete!')
-        await sendToAPI(audioFile)
-      }
-
-      mediaRecorder.start()
-      setStatus('Recording...')
-    } catch (err) {
-      console.error('Microphone access error:', err)
-      setStatus('Microphone access denied.')
-    }
-  }
-
   const stopRecording = () => {
     mediaRecorderRef.current?.stop()
   }
@@ -144,7 +117,7 @@ export default function AudioProcessor() {
         </select>
       </div>
 
-      {/* Upload / Record Controls */}
+      {/* Upload Controls */}
       <input
         type="file"
         accept=".mp3, .wav, .m4a, .ogg, .webm, audio/*"
@@ -158,21 +131,6 @@ export default function AudioProcessor() {
       >
         Upload Audio
       </label>
-
-      <div>
-        <button
-          onClick={startRecording}
-          className="px-6 py-3 rounded-2xl bg-purple-500/10 border border-purple-400 text-purple-300 hover:bg-purple-500/20 transition mr-2"
-        >
-          Record Live
-        </button>
-        <button
-          onClick={stopRecording}
-          className="px-6 py-3 rounded-2xl bg-red-500/10 border border-red-400 text-red-300 hover:bg-red-500/20 transition"
-        >
-          Stop
-        </button>
-      </div>
 
       {status && <p className="text-sm text-gray-400">{status}</p>}
 
@@ -206,28 +164,41 @@ export default function AudioProcessor() {
                 else if (title.includes('Patient')) titleColor = 'text-green-400'
                 else if (title.includes('Insights')) titleColor = 'text-purple-400'
 
+                if (title.includes('References')) {
+                  const lines = content.split('\n').filter(line => line.trim() !== '')
+                  return (
+                    <div key={i}>
+                      <h4 className={`font-semibold mb-2 text-lg ${titleColor}`}>{title}</h4>
+                      <div className="space-y-4 mt-2">
+                        {lines.map((line, i) => {
+                          const titleMatch = line.match(/^- (.+?): (.+)$/)
+                          const urlMatch = line.match(/URL: (https?:\/\/[^\s]+)/)
+
+                          if (titleMatch && urlMatch) {
+                            return (
+                              <div key={i} className="bg-gray-800 p-4 rounded border-l-4 border-blue-500 hover:shadow-lg transition">
+                                <p className="text-sm font-semibold text-cyan-300">{titleMatch[1]}</p>
+                                <p className="text-sm text-gray-300">{titleMatch[2]}</p>
+                                <a href={urlMatch[1]} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline text-sm mt-1 inline-block">
+                                  {urlMatch[1]}
+                                </a>
+                              </div>
+                            )
+                          }
+
+                          return <p key={i} className="text-sm text-gray-300 pl-2">{line}</p>
+                        })}
+                      </div>
+                    </div>
+                  )
+                }
+
                 const lines = content.split('\n').map((line, j) => {
                   const isBullet = line.trim().startsWith('-')
-                  const hasUrl = line.includes('http')
-                  let formatted = line
-
-                  if (hasUrl) {
-                    const urlMatch = line.match(/https?:\/\/[^\s]+/)
-                    if (urlMatch) {
-                      const url = urlMatch[0]
-                      formatted = line.replace(
-                        url,
-                        `<a href="${url}" target="_blank" class="text-blue-400 underline hover:text-blue-200">${url}</a>`
-                      )
-                    }
-                  }
-
                   return (
-                    <p key={j} className="pl-2" dangerouslySetInnerHTML={{
-                      __html: isBullet
-                        ? `• ${formatted.trim().slice(1).trim()}`
-                        : formatted
-                    }} />
+                    <p key={j} className="pl-2">
+                      {isBullet ? `• ${line.trim().slice(1).trim()}` : line}
+                    </p>
                   )
                 })
 
