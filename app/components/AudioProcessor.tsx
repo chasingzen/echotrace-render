@@ -101,6 +101,7 @@ export default function AudioProcessor() {
             body { font-family: sans-serif; padding: 2rem; color: #333; }
             h1 { margin-bottom: 0; }
             .timestamp { font-size: 0.9rem; color: #666; margin-bottom: 1rem; }
+            a { color: #1e90ff; text-decoration: underline; }
           </style>
         </head>
         <body>
@@ -163,26 +164,51 @@ export default function AudioProcessor() {
           <p className="text-xs text-gray-400 mb-4">Generated: {new Date().toLocaleString()}</p>
 
           <h3 className="text-cyan-400 font-bold text-lg mb-2">Transcript:</h3>
-          <p className="text-gray-300 text-sm mb-4 whitespace-pre-wrap">{result.transcript}</p>
+          <pre className="text-sm bg-black/30 text-gray-200 rounded-md p-4 overflow-auto font-mono mb-6 whitespace-pre-wrap border border-cyan-700">
+            {result.transcript}
+          </pre>
 
           <h3 className="text-purple-400 font-bold text-lg mb-2">AI Insight:</h3>
-          <div className="text-sm text-gray-300 space-y-4 whitespace-pre-wrap">
-            {result.analysis.split(/(?=\*\*Transcript:|\*\*Clinical Insights:|\*\*Risk Flags:|\*\*Patient Summary:|\*\*References:)/g).map((section, i) => {
-              const title = section.match(/\*\*(.*?)\*\*/)?.[1] || 'Section'
-              const content = section.replace(/\*\*(.*?)\*\*\s*/, '')
+          <div className="text-sm text-gray-300 space-y-6 whitespace-pre-wrap leading-relaxed">
+            {result.analysis
+              .split(/(?=\*\*Transcript:|\*\*Clinical Insights:|\*\*Risk Flags:|\*\*Patient Summary:|\*\*References:)/g)
+              .map((section, i) => {
+                const title = section.match(/\*\*(.*?)\*\*/)?.[1] || 'Section'
+                const content = section.replace(/\*\*(.*?)\*\*\s*/, '').trim()
 
-              let titleColor = 'text-cyan-400'
-              if (title.includes('Risk')) titleColor = 'text-yellow-400'
-              else if (title.includes('Patient')) titleColor = 'text-green-400'
-              else if (title.includes('Insights')) titleColor = 'text-purple-400'
+                let titleColor = 'text-cyan-400'
+                if (title.includes('Risk')) titleColor = 'text-yellow-400'
+                else if (title.includes('Patient')) titleColor = 'text-green-400'
+                else if (title.includes('Insights')) titleColor = 'text-purple-400'
 
-              return (
-                <div key={i}>
-                  <h4 className={`font-semibold mb-1 ${titleColor}`}>{title}</h4>
-                  <p className="text-gray-200 leading-relaxed">{content.trim()}</p>
-                </div>
-              )
-            })}
+                const lines = content.split('\n').map((line, j) => {
+                  const isBullet = line.trim().startsWith('-')
+                  const hasUrl = line.includes('http')
+                  let formatted = line
+
+                  if (hasUrl) {
+                    const urlMatch = line.match(/https?:\/\/[^\s]+/)
+                    if (urlMatch) {
+                      const url = urlMatch[0]
+                      formatted = line.replace(
+                        url,
+                        `<a href="${url}" target="_blank" class="text-blue-400 underline hover:text-blue-200">${url}</a>`
+                      )
+                    }
+                  }
+
+                  return (
+                    <p key={j} className="pl-2" dangerouslySetInnerHTML={{ __html: isBullet ? `• ${formatted.trim().slice(1).trim()}` : formatted }} />
+                  )
+                })
+
+                return (
+                  <div key={i}>
+                    <h4 className={`font-semibold mb-2 text-lg ${titleColor}`}>{title}</h4>
+                    <div className="space-y-1">{lines}</div>
+                  </div>
+                )
+              })}
           </div>
 
           <div className="mt-6 flex flex-wrap justify-center gap-4 print:hidden">
