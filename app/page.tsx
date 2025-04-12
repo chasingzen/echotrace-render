@@ -38,7 +38,15 @@ export default function HomePage() {
           transition={{ duration: 1 }}
           className="mb-8"
         >
-          <AnimatedLogo />
+         <motion.img
+  src="/new-logo.svg"
+  alt="EchoTrace Logo"
+  className="h-20 w-auto mx-auto"
+  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+  animate={{ opacity: 1, y: 0, scale: 1 }}
+  transition={{ duration: 1.2, ease: 'easeOut' }}
+  whileHover={{ scale: 1.05, rotate: [0, 0.5, -0.5, 0] }}
+/>
         </motion.div>
 
         <motion.h1
