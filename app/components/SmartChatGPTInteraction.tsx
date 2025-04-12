@@ -1,3 +1,4 @@
+// SmartChatGPTInteraction.tsx
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
@@ -5,20 +6,38 @@ import { motion } from 'framer-motion'
 
 export default function SmartChatGPTInteraction() {
   const [transcript, setTranscript] = useState<string | null>(null)
-  const [chatLog, setChatLog] = useState<any[]>([])
-  const [question, setQuestion] = useState('')
+  const [chatLog, setChatLog] = useState<any[]>([{
+    role: 'system',
+    content: 'You are a helpful, kind, and thoughtful interviewer asking open-ended questions for a cognitive voice analysis.'
+  }])
   const [recording, setRecording] = useState(false)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunks = useRef<Blob[]>([])
   const lastBlob = useRef<Blob | null>(null)
 
   useEffect(() => {
-    if (question) {
-      const utterance = new SpeechSynthesisUtterance(question)
-      speechSynthesis.speak(utterance)
-      startListening()
+    if (chatLog.length === 1) {
+      fetchInitialQuestion()
     }
-  }, [question])
+  }, [])
+
+  const fetchInitialQuestion = async () => {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: chatLog }),
+    })
+    const data = await res.json()
+    const reply = data.choices[0].message.content
+    speakAndListen(reply)
+    setChatLog(prev => [...prev, { role: 'assistant', content: reply }])
+  }
+
+  const speakAndListen = (text: string) => {
+    const utterance = new SpeechSynthesisUtterance(text)
+    utterance.onend = () => startListening()
+    speechSynthesis.speak(utterance)
+  }
 
   const startListening = async () => {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
@@ -39,7 +58,6 @@ export default function SmartChatGPTInteraction() {
     recorder.start()
     setRecording(true)
 
-    // Auto stop after 6s
     setTimeout(() => {
       recorder.stop()
       setRecording(false)
@@ -63,20 +81,19 @@ export default function SmartChatGPTInteraction() {
   }
 
   const sendToChatGPT = async (userInput: string) => {
-    const messages = [...chatLog, { role: 'user', content: userInput }]
+    const newChatLog = [...chatLog, { role: 'user', content: userInput }]
+    setChatLog(newChatLog)
 
     const res = await fetch('/api/chat', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ messages }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: newChatLog }),
     })
 
     const data = await res.json()
     const reply = data.choices[0].message.content
-    setChatLog([...messages, { role: 'assistant', content: reply }])
-    setQuestion(reply)
+    setChatLog(prev => [...prev, { role: 'assistant', content: reply }])
+    speakAndListen(reply)
   }
 
   return (
@@ -85,7 +102,7 @@ export default function SmartChatGPTInteraction() {
       {recording ? (
         <p className="text-green-400">Listening...</p>
       ) : (
-        <p className="text-gray-400">Waiting for AI question...</p>
+        <p className="text-gray-400">Waiting for AI to speak...</p>
       )}
       {transcript && (
         <div>
