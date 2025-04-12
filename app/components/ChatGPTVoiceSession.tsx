@@ -10,8 +10,8 @@ export default function ChatGPTVoiceSession() {
         'You are a helpful, kind, and curious AI that is having a voice-based conversation to assess emotional clarity and mental focus. Speak in natural, thoughtful questions. Keep replies short and pause for human response.',
     },
   ])
-  const [audioURL, setAudioURL] = useState<string | null>(null)
   const [sessionStarted, setSessionStarted] = useState(false)
+  const [status, setStatus] = useState<'idle' | 'speaking' | 'listening' | 'thinking'>('idle')
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunks = useRef<Blob[]>([])
   const lastBlob = useRef<Blob | null>(null)
@@ -24,6 +24,7 @@ export default function ChatGPTVoiceSession() {
   }, [sessionStarted])
 
   const getNextChatGPTReply = async () => {
+    setStatus('thinking')
     const res = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -49,13 +50,14 @@ export default function ChatGPTVoiceSession() {
 
     const blob = await res.blob()
     const url = URL.createObjectURL(blob)
-    setAudioURL(url)
 
     const audio = new Audio(url)
     audioRef.current = audio
+    setStatus('speaking')
 
     audio.onended = () => {
       console.log('AI finished speaking, starting mic...')
+      setStatus('listening')
       startRecording()
     }
 
@@ -91,6 +93,7 @@ export default function ChatGPTVoiceSession() {
   }
 
   const transcribeAndContinue = async (blob: Blob) => {
+    setStatus('thinking')
     const file = new File([blob], 'audio.webm', { type: 'audio/webm' })
     const formData = new FormData()
     formData.append('file', file)
@@ -128,11 +131,11 @@ export default function ChatGPTVoiceSession() {
       ) : (
         <>
           <p className="text-sm text-gray-400">
-            ChatGPT is leading this conversation out loud. When it finishes speaking, your mic will activate.
+            {status === 'speaking' && '🔊 AI is speaking...'}
+            {status === 'listening' && '🎤 Listening for your response...'}
+            {status === 'thinking' && '💭 Processing...'}
           </p>
-          {audioURL && (
-            <audio ref={audioRef} src={audioURL} controls autoPlay className="mt-2 w-full" />
-          )}
+          <audio ref={audioRef} className="hidden" />
         </>
       )}
     </div>
