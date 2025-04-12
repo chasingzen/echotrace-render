@@ -1,4 +1,3 @@
-// /app/api/whisper/route.ts
 import { NextResponse } from 'next/server'
 
 export async function POST(req: Request) {
@@ -7,9 +6,9 @@ export async function POST(req: Request) {
   const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
     },
-    body: formData
+    body: formData,
   })
 
   const data = await response.json()
