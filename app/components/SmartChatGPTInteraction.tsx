@@ -1,4 +1,3 @@
-// SmartChatGPTInteraction.tsx
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
@@ -30,7 +29,7 @@ export default function SmartChatGPTInteraction() {
     recorder.ondataavailable = e => {
       if (e.data.size > 0) chunks.current.push(e.data)
     }
-    
+
     recorder.onstop = () => {
       const blob = new Blob(chunks.current, { type: 'audio/webm' })
       lastBlob.current = blob
@@ -40,7 +39,7 @@ export default function SmartChatGPTInteraction() {
     recorder.start()
     setRecording(true)
 
-    // Auto stop after 6s or silence logic in next version
+    // Auto stop after 6s
     setTimeout(() => {
       recorder.stop()
       setRecording(false)
@@ -53,11 +52,11 @@ export default function SmartChatGPTInteraction() {
     formData.append('file', file)
     formData.append('model', 'whisper-1')
 
-    const res = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+    const res = await fetch('/api/whisper', {
       method: 'POST',
-      headers: { Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY},
       body: formData,
     })
+
     const data = await res.json()
     setTranscript(data.text)
     sendToChatGPT(data.text)
@@ -66,16 +65,12 @@ export default function SmartChatGPTInteraction() {
   const sendToChatGPT = async (userInput: string) => {
     const messages = [...chatLog, { role: 'user', content: userInput }]
 
-    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+    const res = await fetch('/api/chat', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer  ${process.env.NEXT_PUBLIC_OPENAI_API_KEY`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        model: 'gpt-4',
-        messages,
-      }),
+      body: JSON.stringify({ messages }),
     })
 
     const data = await res.json()
@@ -87,7 +82,11 @@ export default function SmartChatGPTInteraction() {
   return (
     <div className="bg-gray-900 rounded-xl p-6 space-y-4">
       <h2 className="text-xl font-semibold text-white">Interactive AI Conversation</h2>
-      {recording ? <p className="text-green-400">Listening...</p> : <p className="text-gray-400">Waiting for AI question...</p>}
+      {recording ? (
+        <p className="text-green-400">Listening...</p>
+      ) : (
+        <p className="text-gray-400">Waiting for AI question...</p>
+      )}
       {transcript && (
         <div>
           <p className="text-sm text-cyan-300">You said:</p>
