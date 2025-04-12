@@ -15,7 +15,7 @@ export default function ChatGPTVoiceSession() {
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunks = useRef<Blob[]>([])
   const lastBlob = useRef<Blob | null>(null)
-  const audioRef = useRef<HTMLAudioElement>(null)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
 
   useEffect(() => {
     if (sessionStarted && chatLog.length === 1) {
@@ -36,38 +36,58 @@ export default function ChatGPTVoiceSession() {
   }
 
   const speakWithTTS = async (text: string) => {
+    if (audioRef.current) {
+      audioRef.current.pause()
+      audioRef.current.src = ''
+    }
+
     const res = await fetch('/api/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ input: text, voice: 'nova' }),
     })
+
     const blob = await res.blob()
     const url = URL.createObjectURL(blob)
     setAudioURL(url)
+
     const audio = new Audio(url)
     audioRef.current = audio
-    audio.onended = () => startRecording()
-    audio.play()
+
+    audio.onended = () => {
+      console.log('AI finished speaking, starting mic...')
+      startRecording()
+    }
+
+    try {
+      await audio.play()
+    } catch (err) {
+      console.error('Audio playback failed:', err)
+    }
   }
 
   const startRecording = async () => {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-    const recorder = new MediaRecorder(stream)
-    mediaRecorderRef.current = recorder
-    chunks.current = []
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+      const recorder = new MediaRecorder(stream)
+      mediaRecorderRef.current = recorder
+      chunks.current = []
 
-    recorder.ondataavailable = (e) => {
-      if (e.data.size > 0) chunks.current.push(e.data)
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.current.push(e.data)
+      }
+
+      recorder.onstop = () => {
+        const blob = new Blob(chunks.current, { type: 'audio/webm' })
+        lastBlob.current = blob
+        transcribeAndContinue(blob)
+      }
+
+      recorder.start()
+      setTimeout(() => recorder.stop(), 6000)
+    } catch (error) {
+      console.error('Error starting recording:', error)
     }
-
-    recorder.onstop = () => {
-      const blob = new Blob(chunks.current, { type: 'audio/webm' })
-      lastBlob.current = blob
-      transcribeAndContinue(blob)
-    }
-
-    recorder.start()
-    setTimeout(() => recorder.stop(), 6000)
   }
 
   const transcribeAndContinue = async (blob: Blob) => {
@@ -80,8 +100,17 @@ export default function ChatGPTVoiceSession() {
       method: 'POST',
       body: formData,
     })
+
     const data = await res.json()
-    const userReply = data.text
+    const userReply = data.text.trim()
+    console.log('User said:', userReply)
+
+    if (!userReply) {
+      console.warn('Empty transcription, retrying...')
+      getNextChatGPTReply()
+      return
+    }
+
     setChatLog((prev) => [...prev, { role: 'user', content: userReply }])
     getNextChatGPTReply()
   }
@@ -102,7 +131,7 @@ export default function ChatGPTVoiceSession() {
             ChatGPT is leading this conversation out loud. When it finishes speaking, your mic will activate.
           </p>
           {audioURL && (
-            <audio src={audioURL} controls autoPlay className="mt-2 w-full" />
+            <audio ref={audioRef} src={audioURL} controls autoPlay className="mt-2 w-full" />
           )}
         </>
       )}
