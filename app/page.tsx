@@ -166,54 +166,10 @@ export default function HomePage() {
           )}
 
           {step === 2 && (
-            <div className="w-full max-w-2xl bg-gray-900 rounded-2xl p-6 shadow-xl space-y-6">
-              <h2 className="text-xl font-semibold">Step 2: AI Conversation</h2>
-              <div className="flex justify-center gap-4">
-                {!recording ? (
-                  <button
-                    onClick={startRecording}
-                    className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl shadow"
-                  >
-                    Start Recording
-                  </button>
-                ) : (
-                  <button
-                    onClick={stopRecording}
-                    className="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-xl shadow"
-                  >
-                    Stop Recording
-                  </button>
-                )}
-                <button
-                  onClick={nextAIQuestion}
-                  className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-xl shadow"
-                >
-                  Next Question
-                </button>
-              </div>
-              {audioURL && (
-                <div className="space-y-4">
-                  <audio controls src={audioURL} className="mt-4 w-full" />
-                  <button
-                    onClick={processAudio}
-                    className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-xl shadow"
-                  >
-                    Analyze Response
-                  </button>
-                </div>
-              )}
-              {transcript && (
-                <div className="bg-gray-800 p-4 rounded-xl text-left">
-                  <p className="text-sm text-cyan-300 mb-2">Transcript:</p>
-                  <p className="text-white mb-4">{transcript}</p>
-                  <p className="text-sm text-pink-400">Emotion Detected: {emotion}</p>
-                  <p className="text-xs text-gray-400 mt-2">
-                    Based on: <a href="https://www.nature.com/articles/s41746-022-00602-0" target="_blank" className="underline text-cyan-400">Stress Detection from Audio (Nature)</a>
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
+            <div className="w-full max-w-2xl">
+              <SmartChatGPTInteraction />
+  </div>
+)}
         </motion.div>
       </section>
       <section className="relative z-10 px-6 py-16 bg-gradient-to-b from-gray-950 to-gray-900 text-center">
