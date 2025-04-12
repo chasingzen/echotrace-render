@@ -20,17 +20,18 @@ export default function HomePage() {
     await loadFull(engine)
   }, [])
 
-  const aiQuestions = [
-    new SpeechSynthesisUtterance("Hi there! Can you tell me your name?"),
-    new SpeechSynthesisUtterance("Nice to meet you. What's something you're passionate about?"),
-    new SpeechSynthesisUtterance("How do you usually deal with stressful situations?"),
-    new SpeechSynthesisUtterance("Can you describe a moment that made you feel proud recently?"),
-    new SpeechSynthesisUtterance("Is there something you wish more people understood about you?")
+  const questionStrings = [
+    "Hi there! Can you tell me your name?",
+    "Nice to meet you. What's something you're passionate about?",
+    "How do you usually deal with stressful situations?",
+    "Can you describe a moment that made you feel proud recently?",
+    "Is there something you wish more people understood about you?"
   ]
 
   useEffect(() => {
-    if (step === 2 && conversationIndex < aiQuestions.length) {
-      window.speechSynthesis.speak(aiQuestions[conversationIndex])
+    if (typeof window !== 'undefined' && step === 2 && conversationIndex < questionStrings.length) {
+      const utterance = new SpeechSynthesisUtterance(questionStrings[conversationIndex])
+      window.speechSynthesis.speak(utterance)
     }
   }, [step, conversationIndex])
 
@@ -65,7 +66,7 @@ export default function HomePage() {
   }
 
   const nextAIQuestion = () => {
-    if (conversationIndex < aiQuestions.length - 1) {
+    if (conversationIndex < questionStrings.length - 1) {
       setConversationIndex(conversationIndex + 1)
       setAudioURL(null)
       setTranscript(null)
