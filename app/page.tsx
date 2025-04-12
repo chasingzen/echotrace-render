@@ -1,5 +1,11 @@
 'use client'
-import SmartChatGPTInteraction from './components/SmartChatGPTInteraction'
+import ChatGPTVoiceSession from './components/ChatGPTVoiceSession'
+
+...
+
+{step === 2 && (
+  <ChatGPTVoiceSession />
+)}
 import { motion } from 'framer-motion'
 import Particles from 'react-tsparticles'
 import { loadFull } from 'tsparticles'
