@@ -1,0 +1,97 @@
+'use client'
+
+import { useEffect, useRef, useState } from 'react'
+
+export default function ChatGPTVoiceSession() {
+  const [chatLog, setChatLog] = useState([
+    {
+      role: 'system',
+      content:
+        'You are a helpful, kind, and curious AI that is having a voice-based conversation to assess emotional clarity and mental focus. Speak in natural, thoughtful questions. Keep replies short and pause for human response.',
+    },
+  ])
+  const [audioURL, setAudioURL] = useState<string | null>(null)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const chunks = useRef<Blob[]>([])
+  const lastBlob = useRef<Blob | null>(null)
+  const audioRef = useRef<HTMLAudioElement>(null)
+
+  useEffect(() => {
+    if (chatLog.length === 1) getNextChatGPTReply()
+  }, [])
+
+  const getNextChatGPTReply = async () => {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: chatLog }),
+    })
+    const data = await res.json()
+    const reply = data.choices[0].message.content
+    setChatLog((prev) => [...prev, { role: 'assistant', content: reply }])
+    speakWithTTS(reply)
+  }
+
+  const speakWithTTS = async (text: string) => {
+    const res = await fetch('/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ input: text, voice: 'nova' }),
+    })
+    const blob = await res.blob()
+    const url = URL.createObjectURL(blob)
+    setAudioURL(url)
+    const audio = new Audio(url)
+    audioRef.current = audio
+    audio.onended = () => startRecording()
+    audio.play()
+  }
+
+  const startRecording = async () => {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    const recorder = new MediaRecorder(stream)
+    mediaRecorderRef.current = recorder
+    chunks.current = []
+
+    recorder.ondataavailable = (e) => {
+      if (e.data.size > 0) chunks.current.push(e.data)
+    }
+
+    recorder.onstop = () => {
+      const blob = new Blob(chunks.current, { type: 'audio/webm' })
+      lastBlob.current = blob
+      transcribeAndContinue(blob)
+    }
+
+    recorder.start()
+    setTimeout(() => recorder.stop(), 6000)
+  }
+
+  const transcribeAndContinue = async (blob: Blob) => {
+    const file = new File([blob], 'audio.webm', { type: 'audio/webm' })
+    const formData = new FormData()
+    formData.append('file', file)
+    formData.append('model', 'whisper-1')
+
+    const res = await fetch('/api/whisper', {
+      method: 'POST',
+      body: formData,
+    })
+    const data = await res.json()
+    const userReply = data.text
+    setChatLog((prev) => [...prev, { role: 'user', content: userReply }])
+    getNextChatGPTReply()
+  }
+
+  return (
+    <div className="bg-gray-900 text-white p-6 rounded-xl space-y-4">
+      <h2 className="text-xl font-semibold">Voice Conversation with ChatGPT</h2>
+      <p className="text-sm text-gray-400">
+        ChatGPT is leading this conversation out loud. When it finishes speaking, your mic will activate and record your verbal response.
+      </p>
+      {audioURL && (
+        <audio src={audioURL} controls autoPlay className="mt-2 w-full" />
+      )}
+    </div>
+  )
+}
