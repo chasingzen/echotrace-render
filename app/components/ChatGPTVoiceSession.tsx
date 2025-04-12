@@ -11,14 +11,17 @@ export default function ChatGPTVoiceSession() {
     },
   ])
   const [audioURL, setAudioURL] = useState<string | null>(null)
+  const [sessionStarted, setSessionStarted] = useState(false)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunks = useRef<Blob[]>([])
   const lastBlob = useRef<Blob | null>(null)
   const audioRef = useRef<HTMLAudioElement>(null)
 
   useEffect(() => {
-    if (chatLog.length === 1) getNextChatGPTReply()
-  }, [])
+    if (sessionStarted && chatLog.length === 1) {
+      getNextChatGPTReply()
+    }
+  }, [sessionStarted])
 
   const getNextChatGPTReply = async () => {
     const res = await fetch('/api/chat', {
@@ -86,11 +89,22 @@ export default function ChatGPTVoiceSession() {
   return (
     <div className="bg-gray-900 text-white p-6 rounded-xl space-y-4">
       <h2 className="text-xl font-semibold">Voice Conversation with ChatGPT</h2>
-      <p className="text-sm text-gray-400">
-        ChatGPT is leading this conversation out loud. When it finishes speaking, your mic will activate and record your verbal response.
-      </p>
-      {audioURL && (
-        <audio src={audioURL} controls autoPlay className="mt-2 w-full" />
+      {!sessionStarted ? (
+        <button
+          onClick={() => setSessionStarted(true)}
+          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl shadow"
+        >
+          Start Voice Session
+        </button>
+      ) : (
+        <>
+          <p className="text-sm text-gray-400">
+            ChatGPT is leading this conversation out loud. When it finishes speaking, your mic will activate.
+          </p>
+          {audioURL && (
+            <audio src={audioURL} controls autoPlay className="mt-2 w-full" />
+          )}
+        </>
       )}
     </div>
   )
