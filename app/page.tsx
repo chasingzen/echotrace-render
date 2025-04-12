@@ -1,14 +1,14 @@
-
 'use client'
 
 import { motion } from 'framer-motion'
-import AudioProcessor from './components/AudioProcessor'
 import AnimatedLogo from './AnimatedLogo'
 import Particles from 'react-tsparticles'
 import { loadFull } from 'tsparticles'
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
 export default function HomePage() {
+  const [step, setStep] = useState(1)
+
   const particlesInit = useCallback(async (engine: any) => {
     await loadFull(engine)
   }, [])
@@ -51,15 +51,44 @@ export default function HomePage() {
         </motion.h1>
 
         <motion.div
-          className="mt-8 flex flex-col sm:flex-row gap-4 mb-20"
+          className="mt-8 flex flex-col gap-4 mb-20"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1, duration: 0.75 }}
         >
-          <AudioProcessor />
+          {step === 1 && (
+            <div className="w-full max-w-2xl bg-gray-900 rounded-2xl p-6 shadow-xl space-y-6">
+              <h2 className="text-xl font-semibold">Step 1: Read Aloud Prompt</h2>
+              <p className="text-lg italic">
+                "When the sunlight hits the mountain at just the right angle, the shadows dance across the trees like a gentle breeze. The quick brown fox jumps over the lazy dog, while birds chirp softly in the distance. She sells seashells by the seashore, and Peter Piper picked a peck of pickled peppers."
+              </p>
+              <button
+                onClick={() => setStep(2)}
+                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-xl shadow"
+              >
+                Start Recording
+              </button>
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className="w-full max-w-2xl bg-gray-900 rounded-2xl p-6 shadow-xl space-y-6">
+              <h2 className="text-xl font-semibold">Step 2: Natural Conversation</h2>
+              <p className="text-lg">
+                {randomQuestion()}
+              </p>
+              <button
+                onClick={() => alert('Recording started (placeholder)')}
+                className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-xl shadow"
+              >
+                Answer and Record
+              </button>
+            </div>
+          )}
         </motion.div>
       </section>
 
+      {/* Keep original homepage sections */}
       <section className="relative z-10 px-6 py-16 bg-gradient-to-b from-gray-950 to-gray-900 text-center">
         <h2 className="text-4xl font-bold text-cyan-400 mb-4">Our Mission</h2>
         <p className="text-lg text-gray-300 max-w-3xl mx-auto">
@@ -111,6 +140,17 @@ export default function HomePage() {
       </section>
     </main>
   )
+}
+
+function randomQuestion() {
+  const questions = [
+    "Tell me about a recent memory that made you feel happy.",
+    "If you could design the perfect day, what would it look like?",
+    "How do you usually handle stress?",
+    "Can you describe a time when you felt overwhelmed?",
+    "What's a goal you're currently working toward?"
+  ]
+  return questions[Math.floor(Math.random() * questions.length)]
 }
 
 const scientificSources = [
