@@ -21,12 +21,18 @@ export default function HomePage() {
   }, [])
 
   const aiQuestions = [
-    "Hi there! Can you tell me your name?",
-    "Nice to meet you. What's something you're passionate about?",
-    "How do you usually deal with stressful situations?",
-    "Can you describe a moment that made you feel proud recently?",
-    "Is there something you wish more people understood about you?"
+    new SpeechSynthesisUtterance("Hi there! Can you tell me your name?"),
+    new SpeechSynthesisUtterance("Nice to meet you. What's something you're passionate about?"),
+    new SpeechSynthesisUtterance("How do you usually deal with stressful situations?"),
+    new SpeechSynthesisUtterance("Can you describe a moment that made you feel proud recently?"),
+    new SpeechSynthesisUtterance("Is there something you wish more people understood about you?")
   ]
+
+  useEffect(() => {
+    if (step === 2 && conversationIndex < aiQuestions.length) {
+      window.speechSynthesis.speak(aiQuestions[conversationIndex])
+    }
+  }, [step, conversationIndex])
 
   useEffect(() => {
     if (mediaRecorder) {
@@ -88,7 +94,6 @@ export default function HomePage() {
     const data = await response.json()
     setTranscript(data.text)
 
-    // Simulate emotion tag
     const simulatedEmotion = Math.random() > 0.5 ? 'Calm / Confident' : 'Stressed / Hesitant'
     setEmotion(simulatedEmotion)
   }
@@ -162,9 +167,6 @@ export default function HomePage() {
           {step === 2 && (
             <div className="w-full max-w-2xl bg-gray-900 rounded-2xl p-6 shadow-xl space-y-6">
               <h2 className="text-xl font-semibold">Step 2: AI Conversation</h2>
-              <p className="text-lg font-medium text-green-400">
-                AI: {aiQuestions[conversationIndex]}
-              </p>
               <div className="flex justify-center gap-4">
                 {!recording ? (
                   <button
